@@ -1,6 +1,7 @@
 package com.fuzs.roadstar.mixin;
 
 import com.fuzs.roadstar.common.builder.RoadBlocksBuilder;
+import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
@@ -13,6 +14,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -41,15 +43,10 @@ public abstract class LivingEntityMixin extends Entity {
     @Inject(method = "getSpeedFactor", at = @At("HEAD"), cancellable = true)
     protected void getSpeedFactor(CallbackInfoReturnable<Float> callbackInfo) {
 
-        if (this.isAboveRoadBlock()) {
+        if (RoadBlocksBuilder.isRoadBlock(this.getBlockUnderneath())) {
 
             callbackInfo.setReturnValue(1.0F);
         }
-    }
-
-    protected boolean isAboveRoadBlock() {
-
-        return RoadBlocksBuilder.ROAD_BLOCKS.containsKey(this.world.getBlockState(this.getPositionUnderneath()).getBlock());
     }
 
     protected void removeRoadBlockBoost() {
@@ -68,7 +65,7 @@ public abstract class LivingEntityMixin extends Entity {
 
         if (!this.getStateBelow().getBlock().isAir(this.getStateBelow(), this.world, this.getOnPosition())) {
 
-            double roadBlockSpeed = RoadBlocksBuilder.ROAD_BLOCKS.getOrDefault(this.world.getBlockState(this.getPositionUnderneath()).getBlock(), 1.0);
+            double roadBlockSpeed = RoadBlocksBuilder.getSpeedFactor(this.getBlockUnderneath());
             if (roadBlockSpeed != 1.0) {
 
                 ModifiableAttributeInstance attributeinstance = this.getAttribute(Attributes.MOVEMENT_SPEED);
@@ -100,5 +97,11 @@ public abstract class LivingEntityMixin extends Entity {
 
     @Shadow
     protected abstract boolean func_230295_b_(BlockState p_230295_1_);
+
+    @Unique
+    private Block getBlockUnderneath() {
+
+        return this.world.getBlockState(this.getPositionUnderneath()).getBlock();
+    }
 
 }

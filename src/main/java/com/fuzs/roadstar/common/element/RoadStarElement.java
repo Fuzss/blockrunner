@@ -6,10 +6,13 @@ import com.fuzs.puzzleslib_rs.element.AbstractElement;
 import com.fuzs.puzzleslib_rs.element.side.ICommonElement;
 import com.fuzs.roadstar.RoadStar;
 import com.fuzs.roadstar.common.builder.RoadBlocksBuilder;
+import com.fuzs.roadstar.common.builder.RoadBlocksManager;
+import net.minecraftforge.event.AddReloadListenerEvent;
 import net.minecraftforge.event.RegisterCommandsEvent;
 
 public class RoadStarElement extends AbstractElement implements ICommonElement {
 
+    public final RoadBlocksManager roadBlocksManager = new RoadBlocksManager();
     private final String jsonRoadBlocksName = RoadStar.MODID + ".json";
     
     @Override
@@ -21,6 +24,7 @@ public class RoadStarElement extends AbstractElement implements ICommonElement {
     @Override
     public void setupCommon() {
 
+//        this.addListener(this::onAddReloadListener);
         this.addListener(this::onRegisterCommands);
     }
 
@@ -28,6 +32,11 @@ public class RoadStarElement extends AbstractElement implements ICommonElement {
     public void loadCommon() {
 
         JsonConfigFileUtil.load(this.jsonRoadBlocksName, RoadBlocksBuilder::serialize, RoadBlocksBuilder::deserialize);
+    }
+
+    private void onAddReloadListener(final AddReloadListenerEvent evt) {
+
+        evt.addListener(this.roadBlocksManager);
     }
 
     private void onRegisterCommands(final RegisterCommandsEvent evt) {

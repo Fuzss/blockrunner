@@ -104,7 +104,7 @@ public class JsonCommandUtil {
      */
     private static void sendFeedback(CommandContext<CommandSource> ctx, String jsonName, @Nullable String modId, String translationKey) {
 
-        ctx.getSource().sendFeedback(getFeedbackComponent(jsonName, translationKey, modId), true);
+        ctx.getSource().sendFeedback(getFeedbackComponent(jsonName, modId, translationKey), true);
     }
 
     /**
