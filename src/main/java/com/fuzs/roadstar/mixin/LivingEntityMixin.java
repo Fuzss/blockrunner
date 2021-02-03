@@ -1,6 +1,7 @@
 package com.fuzs.roadstar.mixin;
 
-import com.fuzs.roadstar.common.builder.RoadBlocksBuilder;
+import com.fuzs.roadstar.common.RoadStarElements;
+import com.fuzs.roadstar.common.element.RoadStarElement;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
@@ -43,7 +44,8 @@ public abstract class LivingEntityMixin extends Entity {
     @Inject(method = "getSpeedFactor", at = @At("HEAD"), cancellable = true)
     protected void getSpeedFactor(CallbackInfoReturnable<Float> callbackInfo) {
 
-        if (RoadBlocksBuilder.isRoadBlock(this.getBlockUnderneath())) {
+        RoadStarElement element = RoadStarElements.getAs(RoadStarElements.ROAD_STAR);
+        if (element.roadBlocksManager.isRoadBlock(this.getBlockUnderneath())) {
 
             callbackInfo.setReturnValue(1.0F);
         }
@@ -65,7 +67,8 @@ public abstract class LivingEntityMixin extends Entity {
 
         if (!this.getStateBelow().getBlock().isAir(this.getStateBelow(), this.world, this.getOnPosition())) {
 
-            double roadBlockSpeed = RoadBlocksBuilder.getSpeedFactor(this.getBlockUnderneath());
+            RoadStarElement element = RoadStarElements.getAs(RoadStarElements.ROAD_STAR);
+            double roadBlockSpeed = element.roadBlocksManager.getSpeedFactor(this.getBlockUnderneath());
             if (roadBlockSpeed != 1.0) {
 
                 ModifiableAttributeInstance attributeinstance = this.getAttribute(Attributes.MOVEMENT_SPEED);

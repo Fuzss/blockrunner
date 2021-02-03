@@ -1,0 +1,10 @@
+[
+  {
+    "type": "minecraft:grass_path",
+    "factor": 1.5
+  },
+  {
+    "type": "#minecraft:stone_bricks",
+    "factor": 1.2
+  }
+]

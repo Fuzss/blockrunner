@@ -1,4 +1,4 @@
-package com.fuzs.roadstar.common.builder;
+package com.fuzs.roadstar.common.data;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableSet;
@@ -9,6 +9,7 @@ import net.minecraft.tags.ITag;
 import net.minecraft.tags.TagCollectionManager;
 import net.minecraft.util.JSONUtils;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.registries.ForgeRegistries;
 
 import java.lang.reflect.Type;
@@ -21,7 +22,7 @@ public abstract class RoadEntry {
 
     public RoadEntry(double factor) {
 
-        this.factor = factor;
+        this.factor = MathHelper.clamp(factor, 0.0, 8.0);
     }
 
     protected abstract JsonElement getJsonType();
@@ -97,7 +98,7 @@ public abstract class RoadEntry {
             return this;
         }
 
-        public Set<RoadEntry> build() {
+        public Set<RoadEntry> get() {
 
             return ImmutableSet.copyOf(this.entries);
         }
@@ -105,8 +106,6 @@ public abstract class RoadEntry {
     }
 
     public static class Serializer implements JsonDeserializer<RoadEntry>, JsonSerializer<RoadEntry> {
-
-        private static final Joiner JOINER = Joiner.on(", ");
 
         @Override
         public RoadEntry deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
@@ -126,7 +125,7 @@ public abstract class RoadEntry {
                     return new BlockEntry(ForgeRegistries.BLOCKS.getValue(resourcelocation), speedFactor);
                 }
                 
-                throw new JsonSyntaxException("Unknown block type '" + resourcelocation + "', valid types are: " + JOINER.join(ForgeRegistries.BLOCKS.getKeys()));
+                throw new JsonSyntaxException("Unknown block type '" + resourcelocation + "', valid types are: " + Joiner.on(", ").join(ForgeRegistries.BLOCKS.getKeys()));
             }
         }
 
