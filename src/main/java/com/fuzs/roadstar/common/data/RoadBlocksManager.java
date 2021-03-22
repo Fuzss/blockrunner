@@ -34,7 +34,7 @@ public class RoadBlocksManager extends JsonReloadListener {
             .get();
 
     private final ResourceLocation roadBlocksName = new ResourceLocation(RoadStar.MODID, "road_blocks");
-    private Set<RoadEntry> roadBlocks;
+    private Set<RoadEntry> roadBlocks = Sets.newHashSet();
 
     public RoadBlocksManager() {
 
