@@ -4,7 +4,6 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
-import fuzs.blockrunner.BlockRunner;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
@@ -60,7 +59,7 @@ public abstract class SpeedHolderValue {
         public void addValues(Map<Block, Double> blocks) throws JsonSyntaxException {
             if (Registry.BLOCK.isKnownTagName(this.tag)) {
                 for (Holder<Block> holder : Registry.BLOCK.getTagOrEmpty(this.tag)) {
-                    blocks.put(holder.value(), this.speedMultiplier);
+                    blocks.putIfAbsent(holder.value(), this.speedMultiplier);
                 }
             } else {
                 throw new JsonSyntaxException("Unknown block tag type '" + this.tag.location() + "', valid types are: " + Registry.BLOCK.getTagNames().map(TagKey::location).map(ResourceLocation::toString).collect(Collectors.joining(", ")));

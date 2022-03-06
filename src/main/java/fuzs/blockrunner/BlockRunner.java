@@ -23,8 +23,12 @@ public class BlockRunner {
 
     @SubscribeEvent
     public static void onConstructMod(final FMLConstructModEvent evt) {
-        MinecraftForge.EVENT_BUS.addListener((final AddReloadListenerEvent evt1) -> evt1.addListener(BlockSpeedManager.INSTANCE));
+        registerHandlers();
         registerMessages();
+    }
+
+    private static void registerHandlers() {
+        MinecraftForge.EVENT_BUS.addListener((final AddReloadListenerEvent evt) -> evt.addListener(BlockSpeedManager.INSTANCE));
     }
 
     private static void registerMessages() {
