@@ -3,8 +3,11 @@ package fuzs.blockrunner.data;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonSyntaxException;
+import fuzs.blockrunner.BlockRunner;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.block.Block;
@@ -12,6 +15,7 @@ import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public abstract class SpeedHolderValue {
     final double speedMultiplier;
@@ -20,22 +24,14 @@ public abstract class SpeedHolderValue {
         this.speedMultiplier = Mth.clamp(speedMultiplier, 0.0, 8.0);
     }
 
-    public abstract void addValues(Map<Block, Double> blocks);
+    public abstract void addValues(Map<Block, Double> blocks) throws JsonSyntaxException;
 
     abstract void serialize(JsonObject jsonObject);
-
-    public static void addValue(Block block, double speed, Map<Block, Double> blocks) {
-        new BlockValue(block, speed).addValues(blocks);
-    }
-
-    public static void addValue(TagKey<Block> tag, double speed, Map<Block, Double> blocks) {
-        new TagValue(tag, speed).addValues(blocks);
-    }
 
     public static class BlockValue extends SpeedHolderValue {
         private final Block block;
 
-        private BlockValue(Block block, double speed) {
+        public BlockValue(Block block, double speed) {
             super(speed);
             this.block = block;
         }
@@ -54,15 +50,20 @@ public abstract class SpeedHolderValue {
     public static class TagValue extends SpeedHolderValue {
         private final TagKey<Block> tag;
 
-        private TagValue(TagKey<Block> tag, double speed) {
+        public TagValue(TagKey<Block> tag, double speed) {
             super(speed);
             this.tag = tag;
         }
 
+        @SuppressWarnings("deprecation")
         @Override
-        public void addValues(Map<Block, Double> blocks) {
-            for (Holder<Block> holder : Registry.BLOCK.getTagOrEmpty(this.tag)) {
-                blocks.put(holder.value(), this.speedMultiplier);
+        public void addValues(Map<Block, Double> blocks) throws JsonSyntaxException {
+            if (Registry.BLOCK.isKnownTagName(this.tag)) {
+                for (Holder<Block> holder : Registry.BLOCK.getTagOrEmpty(this.tag)) {
+                    blocks.put(holder.value(), this.speedMultiplier);
+                }
+            } else {
+                throw new JsonSyntaxException("Unknown block tag type '" + this.tag.location() + "', valid types are: " + Registry.BLOCK.getTagNames().map(TagKey::location).map(ResourceLocation::toString).collect(Collectors.joining(", ")));
             }
         }
 
