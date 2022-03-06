@@ -1,10 +1,11 @@
 package fuzs.blockrunner;
 
-import fuzs.blockrunner.data.RoadBlocksManager;
+import fuzs.blockrunner.data.CustomBlockSpeedManager;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.AddReloadListenerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLConstructModEvent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -18,6 +19,11 @@ public class BlockRunner {
 
     @SubscribeEvent
     public static void onConstructMod(final FMLConstructModEvent evt) {
-        MinecraftForge.EVENT_BUS.addListener((final AddReloadListenerEvent evt1) -> evt1.addListener(RoadBlocksManager.INSTANCE));
+        MinecraftForge.EVENT_BUS.addListener((final AddReloadListenerEvent evt1) -> evt1.addListener(CustomBlockSpeedManager.INSTANCE));
+    }
+
+    @SubscribeEvent
+    public static void onCommonSetup(final FMLCommonSetupEvent evt) {
+        CustomBlockSpeedManager.INSTANCE.load();
     }
 }

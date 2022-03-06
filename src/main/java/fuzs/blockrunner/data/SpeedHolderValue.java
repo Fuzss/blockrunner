@@ -1,20 +1,15 @@
 package fuzs.blockrunner.data;
 
-import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
-import com.google.gson.*;
+import com.google.gson.JsonObject;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.tags.TagCollectionManager;
 import net.minecraft.tags.TagKey;
-import net.minecraft.util.JSONUtils;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.block.Block;
 import net.minecraftforge.registries.ForgeRegistries;
 
-import java.lang.reflect.Type;
 import java.util.Map;
 import java.util.Set;
 
@@ -27,12 +22,20 @@ public abstract class SpeedHolderValue {
 
     public abstract void addValues(Map<Block, Double> blocks);
 
-    abstract void serialize(JsonArray jsonArray);
+    abstract void serialize(JsonObject jsonObject);
+
+    public static void addValue(Block block, double speed, Map<Block, Double> blocks) {
+        new BlockValue(block, speed).addValues(blocks);
+    }
+
+    public static void addValue(TagKey<Block> tag, double speed, Map<Block, Double> blocks) {
+        new TagValue(tag, speed).addValues(blocks);
+    }
 
     public static class BlockValue extends SpeedHolderValue {
         private final Block block;
 
-        public BlockValue(Block block, double speed) {
+        private BlockValue(Block block, double speed) {
             super(speed);
             this.block = block;
         }
@@ -43,33 +46,29 @@ public abstract class SpeedHolderValue {
         }
 
         @Override
-        void serialize(JsonArray jsonArray) {
-            JsonObject element = new JsonObject();
-            element.addProperty(ForgeRegistries.BLOCKS.getKey(this.block).toString(), this.speedMultiplier);
-            jsonArray.add(element);
+        void serialize(JsonObject jsonObject) {
+            jsonObject.addProperty(ForgeRegistries.BLOCKS.getKey(this.block).toString(), this.speedMultiplier);
         }
     }
 
     public static class TagValue extends SpeedHolderValue {
         private final TagKey<Block> tag;
 
-        public TagValue(TagKey<Block> tag, double speed) {
+        private TagValue(TagKey<Block> tag, double speed) {
             super(speed);
             this.tag = tag;
         }
 
         @Override
         public void addValues(Map<Block, Double> blocks) {
-            for(Holder<Block> holder : Registry.BLOCK.getTagOrEmpty(this.tag)) {
+            for (Holder<Block> holder : Registry.BLOCK.getTagOrEmpty(this.tag)) {
                 blocks.put(holder.value(), this.speedMultiplier);
             }
         }
 
         @Override
-        void serialize(JsonArray jsonArray) {
-            JsonObject element = new JsonObject();
-            element.addProperty("#" + this.tag.location().toString(), this.speedMultiplier);
-            jsonArray.add(element);
+        void serialize(JsonObject jsonObject) {
+            jsonObject.addProperty("#" + this.tag.location().toString(), this.speedMultiplier);
         }
     }
     
@@ -86,35 +85,8 @@ public abstract class SpeedHolderValue {
             return this;
         }
 
-        public Set<SpeedHolderValue> get() {
+        public Set<SpeedHolderValue> build() {
             return ImmutableSet.copyOf(this.entries);
-        }
-    }
-
-    public static class Serializer implements JsonDeserializer<SpeedHolderValue>, JsonSerializer<SpeedHolderValue> {
-        @Override
-        public SpeedHolderValue deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
-            JsonObject jsonObject = json.getAsJsonObject();
-            String type = JSONUtils.getString(jsonObject, "type");
-            double speedFactor = JSONUtils.getFloat(jsonObject, "factor");
-            if (type.startsWith("#")) {
-                ResourceLocation location = new ResourceLocation(type.substring(1));
-                return new TagValue(TagCollectionManager.getManager().getBlockTags().getTagByID(location), speedFactor);
-            } else {
-                ResourceLocation resourcelocation = new ResourceLocation(type);
-                if (ForgeRegistries.BLOCKS.containsKey(resourcelocation)) {
-                    return new BlockValue(ForgeRegistries.BLOCKS.getValue(resourcelocation), speedFactor);
-                }
-                throw new JsonSyntaxException("Unknown block type '" + resourcelocation + "', valid types are: " + Joiner.on(", ").join(ForgeRegistries.BLOCKS.getKeys()));
-            }
-        }
-
-        @Override
-        public JsonElement serialize(SpeedHolderValue src, Type typeOfSrc, JsonSerializationContext context) {
-            JsonObject jsonobject = new JsonObject();
-            jsonobject.add("type", src.serialize());
-            jsonobject.addProperty("factor", src.speedMultiplier);
-            return jsonobject;
         }
     }
 }
