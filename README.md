@@ -1,4 +1,4 @@
-# Road Star
+# Block Runner
 
 A Minecraft mod. Downloads can be found on CurseForge.
 
