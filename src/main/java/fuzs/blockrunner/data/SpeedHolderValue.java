@@ -20,7 +20,7 @@ public abstract class SpeedHolderValue {
     final double speedMultiplier;
 
     public SpeedHolderValue(double speedMultiplier) {
-        this.speedMultiplier = Mth.clamp(speedMultiplier, 0.0, 8.0);
+        this.speedMultiplier = Mth.clamp(speedMultiplier, 0.1, 8.0);
     }
 
     public abstract void addValues(Map<Block, Double> blocks) throws JsonSyntaxException;

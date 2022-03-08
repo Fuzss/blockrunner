@@ -8,10 +8,11 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
 import fuzs.blockrunner.BlockRunner;
 import fuzs.blockrunner.network.message.S2CBlockSpeedMessage;
-import fuzs.puzzleslib.core.EnvTypeExecutor;
+import fuzs.puzzleslib.core.ModLoaderEnvironment;
 import fuzs.puzzleslib.json.JsonConfigFileUtil;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.packs.resources.PreparableReloadListener;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.tags.BlockTags;
@@ -20,7 +21,8 @@ import net.minecraft.util.Unit;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.event.entity.player.PlayerEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.registries.ForgeRegistries;
 
 import java.io.File;
@@ -41,6 +43,13 @@ public class BlockSpeedManager implements PreparableReloadListener {
     private final Set<SpeedHolderValue> customBlockSpeedValues = Sets.newHashSet();
     private Map<Block, Double> customBlockSpeeds;
 
+    @SubscribeEvent
+    public void onPlayerLoggedIn(final PlayerEvent.PlayerLoggedInEvent evt) {
+        if (ModLoaderEnvironment.isServer()) {
+            BlockRunner.NETWORK.sendTo(new S2CBlockSpeedMessage(this.serialize(this.customBlockSpeedValues)), (ServerPlayer) evt.getPlayer());
+        }
+    }
+
     @Override
     public final CompletableFuture<Void> reload(PreparableReloadListener.PreparationBarrier p_10780_, ResourceManager p_10781_, ProfilerFiller p_10782_, ProfilerFiller p_10783_, Executor p_10784_, Executor p_10785_) {
         return p_10780_.wait(Unit.INSTANCE).thenRunAsync(this::load, p_10785_);
@@ -48,7 +57,9 @@ public class BlockSpeedManager implements PreparableReloadListener {
 
     private void load() {
         JsonConfigFileUtil.getAndLoad(CONFIG_FILE_NAME, this::serialize, this::deserialize);
-        EnvTypeExecutor.runWhenOn(Dist.DEDICATED_SERVER, () -> () -> BlockRunner.NETWORK.sendToAll(new S2CBlockSpeedMessage(this.serialize(this.customBlockSpeedValues))));
+        if (ModLoaderEnvironment.isServer()) {
+            BlockRunner.NETWORK.sendToAll(new S2CBlockSpeedMessage(this.serialize(this.customBlockSpeedValues)));
+        }
     }
 
     private void dissolve() {

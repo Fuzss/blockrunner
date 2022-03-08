@@ -29,6 +29,7 @@ public class BlockRunner {
 
     private static void registerHandlers() {
         MinecraftForge.EVENT_BUS.addListener((final AddReloadListenerEvent evt) -> evt.addListener(BlockSpeedManager.INSTANCE));
+        MinecraftForge.EVENT_BUS.addListener(BlockSpeedManager.INSTANCE::onPlayerLoggedIn);
     }
 
     private static void registerMessages() {
