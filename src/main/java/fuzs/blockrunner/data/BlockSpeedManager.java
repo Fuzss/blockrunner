@@ -10,6 +10,7 @@ import fuzs.blockrunner.BlockRunner;
 import fuzs.blockrunner.network.message.S2CBlockSpeedMessage;
 import fuzs.puzzleslib.core.ModLoaderEnvironment;
 import fuzs.puzzleslib.json.JsonConfigFileUtil;
+import fuzs.puzzleslib.proxy.IProxy;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
@@ -57,7 +58,8 @@ public class BlockSpeedManager implements PreparableReloadListener {
 
     private void load() {
         JsonConfigFileUtil.getAndLoad(CONFIG_FILE_NAME, this::serialize, this::deserialize);
-        if (ModLoaderEnvironment.isServer()) {
+        // this is also called when the server is starting and Forge has not set the game server object yet
+        if (ModLoaderEnvironment.isServer() && IProxy.INSTANCE.getGameServer() != null) {
             BlockRunner.NETWORK.sendToAll(new S2CBlockSpeedMessage(this.serialize(this.customBlockSpeedValues)));
         }
     }

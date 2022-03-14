@@ -2,6 +2,7 @@ package fuzs.blockrunner;
 
 import fuzs.blockrunner.data.BlockSpeedManager;
 import fuzs.blockrunner.network.message.S2CBlockSpeedMessage;
+import fuzs.puzzleslib.PuzzlesLib;
 import fuzs.puzzleslib.network.MessageDirection;
 import fuzs.puzzleslib.network.NetworkHandler;
 import net.minecraftforge.common.MinecraftForge;
@@ -19,10 +20,11 @@ public class BlockRunner {
     public static final String MOD_NAME = "Block Runner";
     public static final Logger LOGGER = LoggerFactory.getLogger(MOD_NAME);
 
-    public static final NetworkHandler NETWORK = NetworkHandler.of(MOD_ID);
+    public static final NetworkHandler NETWORK = NetworkHandler.of(MOD_ID, true, true);
 
     @SubscribeEvent
     public static void onConstructMod(final FMLConstructModEvent evt) {
+        PuzzlesLib.setSideOnly();
         registerHandlers();
         registerMessages();
     }
