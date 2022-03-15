@@ -37,8 +37,8 @@ public class BlockSpeedManager implements PreparableReloadListener {
     public static final BlockSpeedManager INSTANCE = new BlockSpeedManager();
     private static final String CONFIG_FILE_NAME = BlockRunner.MOD_ID + ".json";
     private static final Set<SpeedHolderValue> DEFAULT_BLOCK_SPEEDS = new SpeedHolderValue.Builder()
-            .add(Blocks.DIRT_PATH, 1.5)
-            .add(BlockTags.STONE_BRICKS, 1.2)
+            .add(Blocks.DIRT_PATH, 1.35)
+            .add(BlockTags.STONE_BRICKS, 1.15)
             .build();
 
     private final Set<SpeedHolderValue> customBlockSpeedValues = Sets.newHashSet();
