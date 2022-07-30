@@ -3,6 +3,7 @@ package fuzs.blockrunner.client.handler;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import fuzs.blockrunner.BlockRunner;
+import fuzs.blockrunner.config.ClientConfig;
 import fuzs.blockrunner.data.BlockSpeedManager;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
@@ -29,7 +30,7 @@ import java.util.stream.Stream;
 public class SpeedyClientHandler {
 
     public void onItemTooltip(ItemStack stack, TooltipFlag context, List<Component> lines) {
-        if (!BlockRunner.CONFIG.client().blockSpeedMultiplierTooltip) return;
+        if (!BlockRunner.CONFIG.get(ClientConfig.class).blockSpeedMultiplierTooltip) return;
         if (stack.getItem() instanceof BlockItem item) {
             Block block = item.getBlock();
             if (BlockSpeedManager.INSTANCE.hasCustomSpeed(block)) {
@@ -39,7 +40,7 @@ public class SpeedyClientHandler {
     }
 
     public float onComputeFovModifier(Player player, float fovModifier) {
-        if (!BlockRunner.CONFIG.client().disableFieldOfViewChanges) return fovModifier;
+        if (!BlockRunner.CONFIG.get(ClientConfig.class).disableFieldOfViewChanges) return fovModifier;
         if (player.getAttributes().hasModifier(Attributes.MOVEMENT_SPEED, BlockSpeedManager.SPEED_MODIFIER_CUSTOM_BLOCK_SPEED_UUID)) {
             return this.getCustomFieldOfViewModifier(player);
         }

@@ -7,7 +7,7 @@ import fuzs.puzzleslib.network.message.Message;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.player.Player;
 
-public class S2CBlockSpeedMessage implements Message {
+public class S2CBlockSpeedMessage implements Message<S2CBlockSpeedMessage> {
     private JsonObject customBlockSpeeds;
 
     public S2CBlockSpeedMessage() {
@@ -29,11 +29,12 @@ public class S2CBlockSpeedMessage implements Message {
     }
 
     @Override
-    public BlockSpeedHandler makeHandler() {
+    public PacketHandler<S2CBlockSpeedMessage> makeHandler() {
         return new BlockSpeedHandler();
     }
 
     private static class BlockSpeedHandler extends PacketHandler<S2CBlockSpeedMessage> {
+
         @Override
         public void handle(S2CBlockSpeedMessage packet, Player player, Object gameInstance) {
             BlockSpeedManager.INSTANCE.deserialize(packet.customBlockSpeeds);

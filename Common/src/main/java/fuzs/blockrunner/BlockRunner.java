@@ -2,7 +2,6 @@ package fuzs.blockrunner;
 
 import fuzs.blockrunner.config.ClientConfig;
 import fuzs.blockrunner.network.message.S2CBlockSpeedMessage;
-import fuzs.puzzleslib.config.AbstractConfig;
 import fuzs.puzzleslib.config.ConfigHolder;
 import fuzs.puzzleslib.core.CoreServices;
 import fuzs.puzzleslib.core.ModConstructor;
@@ -17,12 +16,12 @@ public class BlockRunner implements ModConstructor {
     public static final Logger LOGGER = LoggerFactory.getLogger(MOD_NAME);
 
     @SuppressWarnings("Convert2MethodRef")
-    public static final ConfigHolder<ClientConfig, AbstractConfig> CONFIG = CoreServices.FACTORIES.clientConfig(() -> new ClientConfig());
+    public static final ConfigHolder CONFIG = CoreServices.FACTORIES.clientConfig(ClientConfig.class, () -> new ClientConfig());
     public static final NetworkHandler NETWORK = CoreServices.FACTORIES.network(MOD_ID, true, true);
 
     @Override
     public void onConstructMod() {
-        CONFIG.loadConfigs(MOD_ID);
+        CONFIG.bakeConfigs(MOD_ID);
         registerMessages();
     }
 

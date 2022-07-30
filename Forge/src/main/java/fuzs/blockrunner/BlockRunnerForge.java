@@ -15,7 +15,7 @@ public class BlockRunnerForge {
 
     @SubscribeEvent
     public static void onConstructMod(final FMLConstructModEvent evt) {
-        CoreServices.FACTORIES.modConstructor().accept(new BlockRunner());
+        CoreServices.FACTORIES.modConstructor(BlockRunner.MOD_ID).accept(new BlockRunner());
         registerHandlers();
     }
 

@@ -14,7 +14,7 @@ public class BlockRunnerFabric implements ModInitializer {
 
     @Override
     public void onInitialize() {
-        CoreServices.FACTORIES.modConstructor().accept(new BlockRunner());
+        CoreServices.FACTORIES.modConstructor(BlockRunner.MOD_ID).accept(new BlockRunner());
         registerHandlers();
     }
 
