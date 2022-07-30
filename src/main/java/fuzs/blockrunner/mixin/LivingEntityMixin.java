@@ -51,7 +51,7 @@ public abstract class LivingEntityMixin extends Entity {
     protected void tryAddCustomBlockSpeed() {
         if (!this.getBlockStateOn().isAir()) {
             if (this.onCustomSpeedBlock()) {
-                double customSpeed = BlockSpeedManager.INSTANCE.getSpeedFactor(this.level.getBlockState(this.getBlockPosBelowThatAffectsMyMovement()).getBlock());
+                double customSpeed = BlockSpeedManager.INSTANCE.getSpeedFactor(this.level.getBlockState(this.custom$getBlockPosBelowThatAffectsMyMovement2()).getBlock());
                 AttributeInstance attributeinstance = this.getAttribute(Attributes.MOVEMENT_SPEED);
                 if (attributeinstance == null || customSpeed == 1.0) {
                     return;
@@ -68,7 +68,13 @@ public abstract class LivingEntityMixin extends Entity {
 
     @Unique
     protected boolean onCustomSpeedBlock() {
-        return BlockSpeedManager.INSTANCE.hasCustomSpeed(this.level.getBlockState(this.getBlockPosBelowThatAffectsMyMovement()).getBlock());
+        return BlockSpeedManager.INSTANCE.hasCustomSpeed(this.level.getBlockState(this.custom$getBlockPosBelowThatAffectsMyMovement2()).getBlock());
+    }
+
+    @Unique
+    protected BlockPos custom$getBlockPosBelowThatAffectsMyMovement2() {
+        // reduce 0.5000001 (8/16) to 0.4375001 (7/16) to allow slabs to work properly
+        return new BlockPos(this.getX(), this.getBoundingBox().minY - 0.4375001, this.getZ());
     }
 
     @Inject(method = "getBlockSpeedFactor", at = @At("HEAD"), cancellable = true)

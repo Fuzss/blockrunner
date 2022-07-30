@@ -3,6 +3,10 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog].
 
+## [v3.0.2-1.18.2] - 2022-07-30
+## Fixed
+- Ported fix for slabs not working correctly from 1.19 version
+
 ## [v3.0.1-1.18.2] - 2022-03-15
 ### Changed
 - Slightly lowered default speed values
