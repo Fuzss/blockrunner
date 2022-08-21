@@ -3,7 +3,7 @@ package fuzs.blockrunner.network.message;
 import com.google.gson.JsonObject;
 import fuzs.blockrunner.data.BlockSpeedManager;
 import fuzs.puzzleslib.json.JsonConfigFileUtil;
-import fuzs.puzzleslib.network.message.Message;
+import fuzs.puzzleslib.network.Message;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.player.Player;
 
@@ -29,15 +29,13 @@ public class S2CBlockSpeedMessage implements Message<S2CBlockSpeedMessage> {
     }
 
     @Override
-    public PacketHandler<S2CBlockSpeedMessage> makeHandler() {
-        return new BlockSpeedHandler();
-    }
+    public MessageHandler<S2CBlockSpeedMessage> makeHandler() {
+        return new MessageHandler<>() {
 
-    private static class BlockSpeedHandler extends PacketHandler<S2CBlockSpeedMessage> {
-
-        @Override
-        public void handle(S2CBlockSpeedMessage packet, Player player, Object gameInstance) {
-            BlockSpeedManager.INSTANCE.deserialize(packet.customBlockSpeeds);
-        }
+            @Override
+            public void handle(S2CBlockSpeedMessage message, Player player, Object gameInstance) {
+                BlockSpeedManager.INSTANCE.deserialize(message.customBlockSpeeds);
+            }
+        };
     }
 }
