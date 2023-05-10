@@ -13,8 +13,7 @@ public class BlockRunnerFabricClient implements ClientModInitializer {
     }
 
     private static void registerHandlers() {
-        SpeedyClientHandler speedyClientHandler = new SpeedyClientHandler();
-        ItemTooltipCallback.EVENT.register(speedyClientHandler::onItemTooltip);
-        ComputeFovModifierCallback.EVENT.register(speedyClientHandler::onComputeFovModifier);
+        ItemTooltipCallback.EVENT.register(SpeedyClientHandler::onItemTooltip);
+        ComputeFovModifierCallback.EVENT.register(SpeedyClientHandler::onComputeFovModifier);
     }
 }

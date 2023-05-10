@@ -5,7 +5,6 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonSyntaxException;
 import fuzs.blockrunner.BlockRunner;
 import fuzs.blockrunner.network.message.S2CBlockSpeedMessage;
 import fuzs.puzzleslib.core.CoreServices;
@@ -13,9 +12,7 @@ import fuzs.puzzleslib.json.JsonConfigFileUtil;
 import fuzs.puzzleslib.proxy.Proxy;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.server.packs.resources.PreparableReloadListener;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.tags.BlockTags;
@@ -80,7 +77,7 @@ public class BlockSpeedManager implements PreparableReloadListener {
         }
     }
 
-    public boolean hasCustomSpeed(Block block) {
+    public boolean hasBlockSpeed(Block block) {
         this.dissolve();
         return this.customBlockSpeeds.containsKey(block);
     }

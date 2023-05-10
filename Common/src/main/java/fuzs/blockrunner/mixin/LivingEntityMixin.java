@@ -21,22 +21,39 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(LivingEntity.class)
-public abstract class LivingEntityMixin extends Entity {
+abstract class LivingEntityMixin extends Entity {
 
     public LivingEntityMixin(EntityType<?> entityTypeIn, Level worldIn) {
         super(entityTypeIn, worldIn);
     }
 
+    @Inject(method = "getBlockSpeedFactor", at = @At("HEAD"), cancellable = true)
+    protected void getBlockSpeedFactor(CallbackInfoReturnable<Float> callback) {
+        // use the same block position as the getBlockSpeedFactor implementation
+        if (BlockSpeedManager.INSTANCE.hasBlockSpeed(this.level.getBlockState(this.getBlockPosBelowThatAffectsMyMovement()).getBlock())) {
+            callback.setReturnValue(1.0F);
+        }
+    }
+
+    @Inject(method = "onChangedBlock", at = @At("TAIL"))
+    protected void onChangedBlock(BlockPos pos, CallbackInfo callback) {
+        // check if block not air or player is elytra flying
+        if (this.shouldRemoveSoulSpeed(this.getBlockStateOn())) {
+            this.blockrunner$removeBlockSpeed();
+        }
+        this.blockrunner$tryAddBlockSpeed();
+    }
+
     @Inject(method = "checkFallDamage", at = @At("HEAD"))
-    protected void checkFallDamage$head(double y, boolean onGroundIn, BlockState state, BlockPos pos, CallbackInfo callback) {
+    protected void checkFallDamage(double y, boolean onGroundIn, BlockState state, BlockPos pos, CallbackInfo callback) {
         if (!this.level.isClientSide && onGroundIn && this.fallDistance > 0.0F) {
-            this.custom$removeCustomBlockSpeed();
-            this.custom$tryAddCustomBlockSpeed();
+            this.blockrunner$removeBlockSpeed();
+            this.blockrunner$tryAddBlockSpeed();
         }
     }
 
     @Unique
-    protected void custom$removeCustomBlockSpeed() {
+    private void blockrunner$removeBlockSpeed() {
         AttributeInstance attributeinstance = this.getAttribute(Attributes.MOVEMENT_SPEED);
         if (attributeinstance != null) {
             if (attributeinstance.getModifier(BlockSpeedManager.SPEED_MODIFIER_CUSTOM_BLOCK_SPEED_UUID) != null) {
@@ -46,48 +63,22 @@ public abstract class LivingEntityMixin extends Entity {
     }
 
     @Unique
-    protected void custom$tryAddCustomBlockSpeed() {
+    protected void blockrunner$tryAddBlockSpeed() {
         if (!this.getBlockStateOn().isAir()) {
-            if ((!((Object) this instanceof Player player) || !player.getAbilities().flying) && this.custom$onCustomSpeedBlock()) {
-                double customSpeed = BlockSpeedManager.INSTANCE.getSpeedFactor(this.level.getBlockState(this.custom$getBlockPosBelowThatAffectsMyMovement2()).getBlock());
-                AttributeInstance attributeinstance = this.getAttribute(Attributes.MOVEMENT_SPEED);
-                if (attributeinstance == null || customSpeed == 1.0) {
-                    return;
-                }
-                double baseValue = attributeinstance.getBaseValue();
-                customSpeed = customSpeed * baseValue - baseValue;
-                attributeinstance.addTransientModifier(new AttributeModifier(BlockSpeedManager.SPEED_MODIFIER_CUSTOM_BLOCK_SPEED_UUID, "Custom block speed boost", customSpeed, AttributeModifier.Operation.ADDITION));
+            if ((!(LivingEntity.class.cast(this) instanceof Player player) || !player.getAbilities().flying)) {
+                // check the block the entity is directly on to be able to support very thin blocks such as carpet
+                double speedFactor = BlockSpeedManager.INSTANCE.getSpeedFactor(this.getBlockStateOn().getBlock());
+                AttributeInstance attribute = this.getAttribute(Attributes.MOVEMENT_SPEED);
+                if (attribute == null || speedFactor == 1.0) return;
+                double baseValue = attribute.getBaseValue();
+                speedFactor = speedFactor * baseValue - baseValue;
+                attribute.addTransientModifier(new AttributeModifier(BlockSpeedManager.SPEED_MODIFIER_CUSTOM_BLOCK_SPEED_UUID, "Block speed boost", speedFactor, AttributeModifier.Operation.ADDITION));
             }
         }
     }
 
     @Shadow
-    public abstract AttributeInstance getAttribute(Attribute p_21052_);
-
-    @Unique
-    protected boolean custom$onCustomSpeedBlock() {
-        return BlockSpeedManager.INSTANCE.hasCustomSpeed(this.level.getBlockState(this.custom$getBlockPosBelowThatAffectsMyMovement2()).getBlock());
-    }
-
-    @Unique
-    protected BlockPos custom$getBlockPosBelowThatAffectsMyMovement2() {
-        // reduce 0.5000001 (8/16) to 0.4375001 (7/16) to allow slabs to work properly
-        return new BlockPos(this.getX(), this.getBoundingBox().minY - 0.4375001, this.getZ());
-    }
-
-    @Inject(method = "getBlockSpeedFactor", at = @At("HEAD"), cancellable = true)
-    protected void getBlockSpeedFactor$head(CallbackInfoReturnable<Float> callback) {
-        if (this.custom$onCustomSpeedBlock()) callback.setReturnValue(1.0F);
-    }
-
-    @Inject(method = "onChangedBlock", at = @At("TAIL"))
-    protected void onChangedBlock$tail(BlockPos pos, CallbackInfo callback) {
-        // check if block not air or player is elytra flying
-        if (this.shouldRemoveSoulSpeed(this.getBlockStateOn())) {
-            this.custom$removeCustomBlockSpeed();
-        }
-        this.custom$tryAddCustomBlockSpeed();
-    }
+    public abstract AttributeInstance getAttribute(Attribute attribute);
 
     @Shadow
     protected abstract boolean shouldRemoveSoulSpeed(BlockState state);

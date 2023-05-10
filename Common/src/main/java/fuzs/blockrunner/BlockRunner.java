@@ -7,6 +7,7 @@ import fuzs.puzzleslib.core.CoreServices;
 import fuzs.puzzleslib.core.ModConstructor;
 import fuzs.puzzleslib.network.MessageDirection;
 import fuzs.puzzleslib.network.NetworkHandler;
+import net.minecraft.resources.ResourceLocation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,5 +28,9 @@ public class BlockRunner implements ModConstructor {
 
     private static void registerMessages() {
         NETWORK.register(S2CBlockSpeedMessage.class, S2CBlockSpeedMessage::new, MessageDirection.TO_CLIENT);
+    }
+
+    public static ResourceLocation id(String path) {
+        return new ResourceLocation(MOD_ID, path);
     }
 }

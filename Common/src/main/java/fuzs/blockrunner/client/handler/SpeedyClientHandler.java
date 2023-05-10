@@ -17,98 +17,87 @@ import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.TooltipFlag;
-import net.minecraft.world.level.block.Block;
+import org.apache.commons.lang3.ArrayUtils;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class SpeedyClientHandler {
 
-    public void onItemTooltip(ItemStack stack, TooltipFlag context, List<Component> lines) {
-        if (!BlockRunner.CONFIG.get(ClientConfig.class).blockSpeedMultiplierTooltip) return;
-        if (stack.getItem() instanceof BlockItem item) {
-            Block block = item.getBlock();
-            if (BlockSpeedManager.INSTANCE.hasCustomSpeed(block)) {
-                lines.add(Component.translatable("block.blockrunner.speedMultiplier", BlockSpeedManager.INSTANCE.getSpeedFactor(block)).withStyle(ChatFormatting.GRAY));
-            }
+    public static void onItemTooltip(ItemStack stack, TooltipFlag context, List<Component> lines) {
+        if (!BlockRunner.CONFIG.getHolder(ClientConfig.class).isAvailable() || !BlockRunner.CONFIG.get(ClientConfig.class).blockSpeedMultiplierTooltip) {
+            return;
+        }
+        if (stack.getItem() instanceof BlockItem item && BlockSpeedManager.INSTANCE.hasBlockSpeed(item.getBlock())) {
+            lines.add(Component.translatable("block.blockrunner.speedMultiplier", BlockSpeedManager.INSTANCE.getSpeedFactor(item.getBlock())).withStyle(ChatFormatting.GRAY));
         }
     }
 
-    public float onComputeFovModifier(Player player, float fovModifier) {
-        if (!BlockRunner.CONFIG.get(ClientConfig.class).disableFieldOfViewChanges) return fovModifier;
+    public static Optional<Float> onComputeFovModifier(Player player, float fovModifier, float newFovModifier) {
+        if (!BlockRunner.CONFIG.get(ClientConfig.class).disableFieldOfViewChanges) return Optional.empty();
+        if (Minecraft.getInstance().options.getCameraType().isFirstPerson() && player.isScoping()) return Optional.empty();
         if (player.getAttributes().hasModifier(Attributes.MOVEMENT_SPEED, BlockSpeedManager.SPEED_MODIFIER_CUSTOM_BLOCK_SPEED_UUID)) {
-            return this.getCustomFieldOfViewModifier(player);
+            return Optional.of(getFieldOfViewModifierWithoutBlockSpeed(player));
         }
-        return fovModifier;
+        return Optional.empty();
     }
 
-    private float getCustomFieldOfViewModifier(Player player) {
-        float f = 1.0F;
+    private static float getFieldOfViewModifierWithoutBlockSpeed(Player player) {
+        float fovModifier = 1.0F;
         if (player.getAbilities().flying) {
-            f *= 1.1F;
+            fovModifier *= 1.1F;
         }
 
-        double movementSpeed = this.calculateValueSkipping(player.getAttribute(Attributes.MOVEMENT_SPEED), BlockSpeedManager.SPEED_MODIFIER_CUSTOM_BLOCK_SPEED_UUID);
-        f *= ((float) movementSpeed / player.getAbilities().getWalkingSpeed() + 1.0F) / 2.0F;
-        if (player.getAbilities().getWalkingSpeed() == 0.0F || Float.isNaN(f) || Float.isInfinite(f)) {
-            f = 1.0F;
+        double movementSpeed = calculateAttributeValueSkipping(player.getAttribute(Attributes.MOVEMENT_SPEED), BlockSpeedManager.SPEED_MODIFIER_CUSTOM_BLOCK_SPEED_UUID);
+        fovModifier *= ((float) movementSpeed / player.getAbilities().getWalkingSpeed() + 1.0F) / 2.0F;
+        if (player.getAbilities().getWalkingSpeed() == 0.0F || Float.isNaN(fovModifier) || Float.isInfinite(fovModifier)) {
+            fovModifier = 1.0F;
         }
 
-        ItemStack itemStack = player.getUseItem();
         if (player.isUsingItem()) {
-            if (itemStack.is(Items.BOW)) {
+            if (player.getUseItem().is(Items.BOW)) {
                 int i = player.getTicksUsingItem();
-                float g = (float)i / 20.0F;
+                float g = (float) i / 20.0F;
                 if (g > 1.0F) {
                     g = 1.0F;
                 } else {
                     g *= g;
                 }
 
-                f *= 1.0F - g * 0.15F;
+                fovModifier *= 1.0F - g * 0.15F;
             } else if (Minecraft.getInstance().options.getCameraType().isFirstPerson() && player.isScoping()) {
                 return 0.1F;
             }
         }
 
-        return Mth.lerp(Minecraft.getInstance().options.fovEffectScale().get().floatValue(), 1.0F, f);
+        return Mth.lerp(Minecraft.getInstance().options.fovEffectScale().get().floatValue(), 1.0F, fovModifier);
     }
 
-    private double calculateValueSkipping(AttributeInstance attributeInstance, UUID... skippedModifierIds) {
-        double d = attributeInstance.getBaseValue();
+    private static double calculateAttributeValueSkipping(AttributeInstance attributeInstance, UUID... skippedModifierIds) {
 
-        Map<AttributeModifier.Operation, Set<AttributeModifier>> operationToModifiers = Stream.of(AttributeModifier.Operation.values())
-                .collect(Collectors.toMap(Function.identity(), operation -> Sets.newHashSet(), (o1, o2) -> o1, () -> Maps.newEnumMap(AttributeModifier.Operation.class)));
+        double baseValue = attributeInstance.getBaseValue();
+
+        Map<AttributeModifier.Operation, Set<AttributeModifier>> operationToModifiers = Stream.of(AttributeModifier.Operation.values()).collect(Collectors.toMap(Function.identity(), operation -> Sets.newHashSet(), (o1, o2) -> o1, () -> Maps.newEnumMap(AttributeModifier.Operation.class)));
         attributeInstance.getModifiers().stream()
-                .filter(modifier -> {
-                    for (UUID skippedId : skippedModifierIds) {
-                        if (skippedId.equals(modifier.getId())) {
-                            return false;
-                        }
-                    }
-                    return true;
-                })
+                .filter(modifier -> !ArrayUtils.contains(skippedModifierIds, modifier.getId()))
                 .forEach(modifier -> operationToModifiers.get(modifier.getOperation()).add(modifier));
 
-        for(AttributeModifier attributeModifier : operationToModifiers.get(AttributeModifier.Operation.ADDITION)) {
-            d += attributeModifier.getAmount();
+        for (AttributeModifier attributeModifier : operationToModifiers.get(AttributeModifier.Operation.ADDITION)) {
+            baseValue += attributeModifier.getAmount();
         }
 
-        double e = d;
+        double baseValueCopy = baseValue;
 
-        for(AttributeModifier attributeModifier2 : operationToModifiers.get(AttributeModifier.Operation.MULTIPLY_BASE)) {
-            e += d * attributeModifier2.getAmount();
+        for (AttributeModifier attributeModifier : operationToModifiers.get(AttributeModifier.Operation.MULTIPLY_BASE)) {
+            baseValueCopy += baseValue * attributeModifier.getAmount();
         }
 
-        for(AttributeModifier attributeModifier2 : operationToModifiers.get(AttributeModifier.Operation.MULTIPLY_TOTAL)) {
-            e *= 1.0 + attributeModifier2.getAmount();
+        for (AttributeModifier attributeModifier : operationToModifiers.get(AttributeModifier.Operation.MULTIPLY_TOTAL)) {
+            baseValueCopy *= 1.0 + attributeModifier.getAmount();
         }
 
-        return attributeInstance.getAttribute().sanitizeValue(e);
+        return attributeInstance.getAttribute().sanitizeValue(baseValueCopy);
     }
 }
