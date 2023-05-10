@@ -29,7 +29,7 @@ abstract class LivingEntityMixin extends Entity {
 
     @Inject(method = "getBlockSpeedFactor", at = @At("HEAD"), cancellable = true)
     protected void getBlockSpeedFactor(CallbackInfoReturnable<Float> callback) {
-        // use the same block position as the getBlockSpeedFactor implementation
+        // use same block position as the getBlockSpeedFactor implementation
         if (BlockSpeedManager.INSTANCE.hasBlockSpeed(this.level.getBlockState(this.getBlockPosBelowThatAffectsMyMovement()).getBlock())) {
             callback.setReturnValue(1.0F);
         }
@@ -54,27 +54,26 @@ abstract class LivingEntityMixin extends Entity {
 
     @Unique
     private void blockrunner$removeBlockSpeed() {
-        AttributeInstance attributeinstance = this.getAttribute(Attributes.MOVEMENT_SPEED);
-        if (attributeinstance != null) {
-            if (attributeinstance.getModifier(BlockSpeedManager.SPEED_MODIFIER_CUSTOM_BLOCK_SPEED_UUID) != null) {
-                attributeinstance.removeModifier(BlockSpeedManager.SPEED_MODIFIER_CUSTOM_BLOCK_SPEED_UUID);
+        AttributeInstance attribute = this.getAttribute(Attributes.MOVEMENT_SPEED);
+        if (attribute != null) {
+            if (attribute.getModifier(BlockSpeedManager.SPEED_MODIFIER_BLOCK_SPEED_UUID) != null) {
+                attribute.removeModifier(BlockSpeedManager.SPEED_MODIFIER_BLOCK_SPEED_UUID);
             }
         }
     }
 
     @Unique
     protected void blockrunner$tryAddBlockSpeed() {
-        if (!this.getBlockStateOn().isAir()) {
-            if ((!(LivingEntity.class.cast(this) instanceof Player player) || !player.getAbilities().flying)) {
-                // check the block the entity is directly on to be able to support very thin blocks such as carpet
-                double speedFactor = BlockSpeedManager.INSTANCE.getSpeedFactor(this.getBlockStateOn().getBlock());
-                AttributeInstance attribute = this.getAttribute(Attributes.MOVEMENT_SPEED);
-                if (attribute == null || speedFactor == 1.0) return;
-                double baseValue = attribute.getBaseValue();
-                speedFactor = speedFactor * baseValue - baseValue;
-                attribute.addTransientModifier(new AttributeModifier(BlockSpeedManager.SPEED_MODIFIER_CUSTOM_BLOCK_SPEED_UUID, "Block speed boost", speedFactor, AttributeModifier.Operation.ADDITION));
-            }
+        if (this.getBlockStateOn().isAir() || (LivingEntity.class.cast(this) instanceof Player player && player.getAbilities().flying)) {
+            return;
         }
+        // check the block the entity is directly on to be able to support very thin blocks such as carpet
+        double speedFactor = BlockSpeedManager.INSTANCE.getSpeedFactor(this.getBlockStateOn().getBlock());
+        AttributeInstance attribute = this.getAttribute(Attributes.MOVEMENT_SPEED);
+        if (attribute == null || speedFactor == 1.0) return;
+        double baseValue = attribute.getBaseValue();
+        speedFactor = speedFactor * baseValue - baseValue;
+        attribute.addTransientModifier(new AttributeModifier(BlockSpeedManager.SPEED_MODIFIER_BLOCK_SPEED_UUID, "Block speed boost", speedFactor, AttributeModifier.Operation.ADDITION));
     }
 
     @Shadow

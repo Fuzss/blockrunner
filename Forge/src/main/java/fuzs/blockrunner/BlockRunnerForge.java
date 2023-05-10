@@ -1,8 +1,13 @@
 package fuzs.blockrunner;
 
 import fuzs.blockrunner.data.BlockSpeedManager;
+import fuzs.blockrunner.data.ModBlockTagsProvider;
+import fuzs.blockrunner.data.ModLanguageProvider;
 import fuzs.puzzleslib.core.CoreServices;
+import net.minecraft.data.DataGenerator;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.common.data.ExistingFileHelper;
+import net.minecraftforge.data.event.GatherDataEvent;
 import net.minecraftforge.event.AddReloadListenerEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -24,5 +29,13 @@ public class BlockRunnerForge {
         MinecraftForge.EVENT_BUS.addListener((final PlayerEvent.PlayerLoggedInEvent evt) -> {
             BlockSpeedManager.INSTANCE.onPlayerLoggedIn(evt.getEntity());
         });
+    }
+
+    @SubscribeEvent
+    public static void onGatherData(final GatherDataEvent evt) {
+        DataGenerator dataGenerator = evt.getGenerator();
+        ExistingFileHelper fileHelper = evt.getExistingFileHelper();
+        dataGenerator.addProvider(true, new ModBlockTagsProvider(dataGenerator, BlockRunner.MOD_ID, fileHelper));
+        dataGenerator.addProvider(true, new ModLanguageProvider(dataGenerator, BlockRunner.MOD_ID));
     }
 }

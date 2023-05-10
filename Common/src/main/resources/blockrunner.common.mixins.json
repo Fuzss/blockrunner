@@ -5,10 +5,10 @@
   "package": "fuzs.blockrunner.mixin",
   "refmap": "blockrunner.refmap.json",
   "mixins": [
-    "LivingEntityMixin",
-    "accessor.LivingEntityAccessor"
+    "LivingEntityMixin"
   ],
   "client": [
+    "client.AbstractClientPlayerMixin"
   ],
   "injectors": {
     "defaultRequire": 1

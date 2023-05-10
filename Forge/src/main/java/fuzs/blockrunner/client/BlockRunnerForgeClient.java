@@ -1,9 +1,8 @@
 package fuzs.blockrunner.client;
 
 import fuzs.blockrunner.BlockRunner;
-import fuzs.blockrunner.client.handler.SpeedyClientHandler;
+import fuzs.blockrunner.client.handler.BlockSpeedTooltipHandler;
 import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.event.ComputeFovModifierEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.player.ItemTooltipEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -20,10 +19,7 @@ public class BlockRunnerForgeClient {
 
     private static void registerHandlers() {
         MinecraftForge.EVENT_BUS.addListener((final ItemTooltipEvent evt) -> {
-            SpeedyClientHandler.onItemTooltip(evt.getItemStack(), evt.getFlags(), evt.getToolTip());
-        });
-        MinecraftForge.EVENT_BUS.addListener((final ComputeFovModifierEvent evt) -> {
-            SpeedyClientHandler.onComputeFovModifier(evt.getPlayer(), evt.getFovModifier(), evt.getNewFovModifier()).ifPresent(evt::setNewFovModifier);
+            BlockSpeedTooltipHandler.onItemTooltip(evt.getItemStack(), evt.getFlags(), evt.getToolTip());
         });
     }
 }
