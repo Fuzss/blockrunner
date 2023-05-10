@@ -3,6 +3,10 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog].
 
+## [v4.2.2-1.19.2] - 2023-05-10
+### Fixed
+- Attempt to fix visual stutter when walking across blocks with different speeds on a lagging server
+
 ## [v4.2.1-1.19.2] - 2023-05-10
 ### Added
 - Added a few default block tags with associated speed values to allow other mods to easily add support for Block Runner without having to declare an explicit dependency
