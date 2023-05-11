@@ -1,18 +1,18 @@
 package fuzs.blockrunner;
 
-import fuzs.blockrunner.data.BlockSpeedManager;
 import fuzs.blockrunner.data.ModBlockTagsProvider;
 import fuzs.blockrunner.data.ModLanguageProvider;
-import fuzs.puzzleslib.core.CoreServices;
+import fuzs.puzzleslib.api.core.v1.ModConstructor;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.data.DataGenerator;
-import net.minecraftforge.common.MinecraftForge;
+import net.minecraft.data.PackOutput;
 import net.minecraftforge.common.data.ExistingFileHelper;
 import net.minecraftforge.data.event.GatherDataEvent;
-import net.minecraftforge.event.AddReloadListenerEvent;
-import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLConstructModEvent;
+
+import java.util.concurrent.CompletableFuture;
 
 @Mod(BlockRunner.MOD_ID)
 @Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD)
@@ -20,22 +20,16 @@ public class BlockRunnerForge {
 
     @SubscribeEvent
     public static void onConstructMod(final FMLConstructModEvent evt) {
-        CoreServices.FACTORIES.modConstructor(BlockRunner.MOD_ID).accept(new BlockRunner());
-        registerHandlers();
-    }
-
-    private static void registerHandlers() {
-        MinecraftForge.EVENT_BUS.addListener((final AddReloadListenerEvent evt) -> evt.addListener(BlockSpeedManager.INSTANCE));
-        MinecraftForge.EVENT_BUS.addListener((final PlayerEvent.PlayerLoggedInEvent evt) -> {
-            BlockSpeedManager.INSTANCE.onPlayerLoggedIn(evt.getEntity());
-        });
+        ModConstructor.construct(BlockRunner.MOD_ID, BlockRunner::new);
     }
 
     @SubscribeEvent
     public static void onGatherData(final GatherDataEvent evt) {
-        DataGenerator dataGenerator = evt.getGenerator();
-        ExistingFileHelper fileHelper = evt.getExistingFileHelper();
-        dataGenerator.addProvider(true, new ModBlockTagsProvider(dataGenerator, BlockRunner.MOD_ID, fileHelper));
-        dataGenerator.addProvider(true, new ModLanguageProvider(dataGenerator, BlockRunner.MOD_ID));
+        final DataGenerator dataGenerator = evt.getGenerator();
+        final PackOutput packOutput = dataGenerator.getPackOutput();
+        final CompletableFuture<HolderLookup.Provider> lookupProvider = evt.getLookupProvider();
+        final ExistingFileHelper fileHelper = evt.getExistingFileHelper();
+        dataGenerator.addProvider(true, new ModBlockTagsProvider(packOutput, lookupProvider, BlockRunner.MOD_ID, fileHelper));
+        dataGenerator.addProvider(true, new ModLanguageProvider(packOutput, BlockRunner.MOD_ID));
     }
 }

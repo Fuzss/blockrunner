@@ -1,4 +1,4 @@
-package fuzs.blockrunner.data;
+package fuzs.blockrunner.world.level.block.data;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.Maps;
@@ -7,11 +7,12 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import fuzs.blockrunner.BlockRunner;
 import fuzs.blockrunner.init.ModRegistry;
-import fuzs.blockrunner.network.message.S2CBlockSpeedMessage;
-import fuzs.puzzleslib.core.CoreServices;
-import fuzs.puzzleslib.json.JsonConfigFileUtil;
-import fuzs.puzzleslib.proxy.Proxy;
-import net.minecraft.core.Registry;
+import fuzs.blockrunner.network.S2CBlockSpeedMessage;
+import fuzs.puzzleslib.api.config.v3.json.JsonConfigFileUtil;
+import fuzs.puzzleslib.api.core.v1.ModLoaderEnvironment;
+import fuzs.puzzleslib.api.core.v1.Proxy;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.packs.resources.PreparableReloadListener;
@@ -47,7 +48,7 @@ public class BlockSpeedManager implements PreparableReloadListener {
     private Map<Block, Double> blockSpeeds;
 
     public void onPlayerLoggedIn(Player player) {
-        if (CoreServices.ENVIRONMENT.isServer()) {
+        if (ModLoaderEnvironment.INSTANCE.isServer()) {
             BlockRunner.NETWORK.sendTo(new S2CBlockSpeedMessage(this.serialize(this.blockSpeedValues)), (ServerPlayer) player);
         }
     }
@@ -60,7 +61,7 @@ public class BlockSpeedManager implements PreparableReloadListener {
     public void load() {
         JsonConfigFileUtil.getAndLoad(CONFIG_FILE_NAME, this::serialize, this::deserialize);
         // this is also called when the server is starting and Forge has not set the game server object yet
-        if (CoreServices.ENVIRONMENT.isServer() && Proxy.INSTANCE.getGameServer() != null) {
+        if (ModLoaderEnvironment.INSTANCE.isServer() && Proxy.INSTANCE.getGameServer() != null) {
             BlockRunner.NETWORK.sendToAll(new S2CBlockSpeedMessage(this.serialize(this.blockSpeedValues)));
         }
     }
@@ -114,15 +115,15 @@ public class BlockSpeedManager implements PreparableReloadListener {
             String key = entry.getKey();
             double speedValue = entry.getValue().getAsDouble();
             if (key.startsWith("#")) {
-                TagKey<Block> tag = TagKey.create(Registry.BLOCK_REGISTRY, new ResourceLocation(key.substring(1)));
+                TagKey<Block> tag = TagKey.create(Registries.BLOCK, new ResourceLocation(key.substring(1)));
                 blockSpeedValues.add(new SpeedHolderValue.TagValue(tag, speedValue));
             } else {
                 ResourceLocation resourcelocation = new ResourceLocation(key);
-                if (Registry.BLOCK.containsKey(resourcelocation)) {
-                    Block block = Registry.BLOCK.get(resourcelocation);
+                if (BuiltInRegistries.BLOCK.containsKey(resourcelocation)) {
+                    Block block = BuiltInRegistries.BLOCK.get(resourcelocation);
                     blockSpeedValues.add(new SpeedHolderValue.BlockValue(block, speedValue));
                 } else {
-                    BlockRunner.LOGGER.warn("Unknown block type '{}', valid types are: {}", resourcelocation, Joiner.on(", ").join(Registry.BLOCK.keySet()));
+                    BlockRunner.LOGGER.warn("Unknown block type '{}', valid types are: {}", resourcelocation, Joiner.on(", ").join(BuiltInRegistries.BLOCK.keySet()));
                 }
             }
         }

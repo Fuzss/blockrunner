@@ -1,4 +1,4 @@
-package fuzs.blockrunner.data;
+package fuzs.blockrunner.world.level.block.data;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
@@ -6,7 +6,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
 import fuzs.blockrunner.BlockRunner;
 import net.minecraft.core.Holder;
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.Mth;
@@ -42,7 +42,7 @@ public abstract class SpeedHolderValue {
 
         @Override
         void serialize(JsonObject jsonObject) {
-            jsonObject.addProperty(Registry.BLOCK.getKey(this.block).toString(), this.speedMultiplier);
+            jsonObject.addProperty(BuiltInRegistries.BLOCK.getKey(this.block).toString(), this.speedMultiplier);
         }
     }
 
@@ -56,12 +56,12 @@ public abstract class SpeedHolderValue {
 
         @Override
         public void addValues(Map<Block, Double> blocks) throws JsonSyntaxException {
-            if (Registry.BLOCK.isKnownTagName(this.tag)) {
-                for (Holder<Block> holder : Registry.BLOCK.getTagOrEmpty(this.tag)) {
+            if (BuiltInRegistries.BLOCK.getTag(this.tag).isPresent()) {
+                for (Holder<Block> holder : BuiltInRegistries.BLOCK.getTagOrEmpty(this.tag)) {
                     blocks.putIfAbsent(holder.value(), this.speedMultiplier);
                 }
             } else {
-                String allowedLocations = Registry.BLOCK.getTagNames().map(TagKey::location).map(ResourceLocation::toString).collect(Collectors.joining(", "));
+                String allowedLocations = BuiltInRegistries.BLOCK.getTagNames().map(TagKey::location).map(ResourceLocation::toString).collect(Collectors.joining(", "));
                 BlockRunner.LOGGER.warn("Unknown block tag type '{}', valid types are: {}", this.tag.location(), allowedLocations);
             }
         }

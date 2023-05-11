@@ -1,13 +1,13 @@
-package fuzs.blockrunner.network.message;
+package fuzs.blockrunner.network;
 
 import com.google.gson.JsonObject;
-import fuzs.blockrunner.data.BlockSpeedManager;
-import fuzs.puzzleslib.json.JsonConfigFileUtil;
-import fuzs.puzzleslib.network.Message;
+import fuzs.blockrunner.world.level.block.data.BlockSpeedManager;
+import fuzs.puzzleslib.api.config.v3.json.JsonConfigFileUtil;
+import fuzs.puzzleslib.api.network.v2.MessageV2;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.player.Player;
 
-public class S2CBlockSpeedMessage implements Message<S2CBlockSpeedMessage> {
+public class S2CBlockSpeedMessage implements MessageV2<S2CBlockSpeedMessage> {
     private JsonObject customBlockSpeeds;
 
     public S2CBlockSpeedMessage() {

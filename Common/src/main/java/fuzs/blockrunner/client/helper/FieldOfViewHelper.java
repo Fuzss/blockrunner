@@ -4,7 +4,7 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import fuzs.blockrunner.BlockRunner;
 import fuzs.blockrunner.config.ClientConfig;
-import fuzs.blockrunner.data.BlockSpeedManager;
+import fuzs.blockrunner.world.level.block.data.BlockSpeedManager;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;

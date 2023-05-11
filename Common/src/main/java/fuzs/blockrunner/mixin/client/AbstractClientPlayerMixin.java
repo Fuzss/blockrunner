@@ -15,8 +15,8 @@ import org.spongepowered.asm.mixin.injection.ModifyVariable;
 @Mixin(AbstractClientPlayer.class)
 abstract class AbstractClientPlayerMixin extends Player {
 
-    public AbstractClientPlayerMixin(Level level, BlockPos blockPos, float f, GameProfile gameProfile, @Nullable ProfilePublicKey profilePublicKey) {
-        super(level, blockPos, f, gameProfile, profilePublicKey);
+    public AbstractClientPlayerMixin(Level level, BlockPos blockPos, float f, GameProfile gameProfile) {
+        super(level, blockPos, f, gameProfile);
     }
 
     @ModifyVariable(method = "getFieldOfViewModifier", at = @At(value = "STORE", ordinal = 2), ordinal = 0)

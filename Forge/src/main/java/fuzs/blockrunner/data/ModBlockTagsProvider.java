@@ -1,21 +1,23 @@
 package fuzs.blockrunner.data;
 
 import fuzs.blockrunner.init.ModRegistry;
-import net.minecraft.data.DataGenerator;
-import net.minecraft.data.tags.BlockTagsProvider;
+import fuzs.puzzleslib.api.data.v1.AbstractTagProvider;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.data.PackOutput;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraftforge.common.data.ExistingFileHelper;
-import org.jetbrains.annotations.Nullable;
 
-public class ModBlockTagsProvider extends BlockTagsProvider {
+import java.util.concurrent.CompletableFuture;
 
-    public ModBlockTagsProvider(DataGenerator dataGenerator, String modId, @Nullable ExistingFileHelper fileHelper) {
-        super(dataGenerator, modId, fileHelper);
+public class ModBlockTagsProvider extends AbstractTagProvider.Blocks {
+
+    public ModBlockTagsProvider(PackOutput packOutput, CompletableFuture<HolderLookup.Provider> lookupProvider, String modId, ExistingFileHelper fileHelper) {
+        super(packOutput, lookupProvider, modId, fileHelper);
     }
 
     @Override
-    protected void addTags() {
+    protected void addTags(HolderLookup.Provider provider) {
         this.tag(ModRegistry.VERY_SLOW_BLOCKS_BLOCK_TAG);
         this.tag(ModRegistry.SLOW_BLOCKS_BLOCK_TAG);
         this.tag(ModRegistry.SLIGHTLY_SLOW_BLOCKS_BLOCK_TAG);

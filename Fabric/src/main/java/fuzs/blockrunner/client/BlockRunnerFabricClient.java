@@ -1,17 +1,13 @@
 package fuzs.blockrunner.client;
 
-import fuzs.blockrunner.client.handler.BlockSpeedTooltipHandler;
+import fuzs.blockrunner.BlockRunner;
+import fuzs.puzzleslib.api.client.core.v1.ClientModConstructor;
 import net.fabricmc.api.ClientModInitializer;
-import net.fabricmc.fabric.api.client.item.v1.ItemTooltipCallback;
 
 public class BlockRunnerFabricClient implements ClientModInitializer {
 
     @Override
     public void onInitializeClient() {
-        registerHandlers();
-    }
-
-    private static void registerHandlers() {
-        ItemTooltipCallback.EVENT.register(BlockSpeedTooltipHandler::onItemTooltip);
+        ClientModConstructor.construct(BlockRunner.MOD_ID, BlockRunnerClient::new);
     }
 }

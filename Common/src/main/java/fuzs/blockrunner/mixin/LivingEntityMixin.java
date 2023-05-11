@@ -1,7 +1,7 @@
 package fuzs.blockrunner.mixin;
 
 import com.google.common.base.Objects;
-import fuzs.blockrunner.data.BlockSpeedManager;
+import fuzs.blockrunner.world.level.block.data.BlockSpeedManager;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
