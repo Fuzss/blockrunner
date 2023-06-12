@@ -33,7 +33,7 @@ abstract class LivingEntityMixin extends Entity {
     @Inject(method = "getBlockSpeedFactor", at = @At("HEAD"), cancellable = true)
     protected void getBlockSpeedFactor(CallbackInfoReturnable<Float> callback) {
         // use same block position as the getBlockSpeedFactor implementation
-        if (BlockSpeedManager.INSTANCE.hasBlockSpeed(this.level.getBlockState(this.getBlockPosBelowThatAffectsMyMovement()).getBlock())) {
+        if (BlockSpeedManager.INSTANCE.hasBlockSpeed(this.level().getBlockState(this.getBlockPosBelowThatAffectsMyMovement()).getBlock())) {
             callback.setReturnValue(1.0F);
         }
     }
@@ -46,7 +46,7 @@ abstract class LivingEntityMixin extends Entity {
     @Inject(method = "checkFallDamage", at = @At("HEAD"))
     protected void checkFallDamage(double y, boolean onGround, BlockState state, BlockPos pos, CallbackInfo callback) {
         // also run this client-side for players to counter server delay when calculating fov effects
-        if ((!this.level.isClientSide || LivingEntity.class.cast(this) instanceof Player) && onGround && this.fallDistance > 0.0F) {
+        if ((!this.level().isClientSide || LivingEntity.class.cast(this) instanceof Player) && onGround && this.fallDistance > 0.0F) {
             this.blockrunner$removeBlockSpeed();
             this.blockrunner$tryAddBlockSpeed();
         }
@@ -55,7 +55,7 @@ abstract class LivingEntityMixin extends Entity {
     @Inject(method = "baseTick", at = @At("TAIL"))
     public void baseTick(CallbackInfo callback) {
         // also run this client-side for players to counter server delay when calculating fov effects
-        if (this.level.isClientSide && LivingEntity.class.cast(this) instanceof Player) {
+        if (this.level().isClientSide && LivingEntity.class.cast(this) instanceof Player) {
             BlockPos blockPos = this.blockPosition();
             if (!Objects.equal(this.lastPos, blockPos)) {
                 this.lastPos = blockPos;
