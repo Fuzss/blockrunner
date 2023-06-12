@@ -3,6 +3,10 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog].
 
+## [v7.0.1-1.20] - 2023-06-12
+### Changed
+- Updated to latest version of [Puzzles Lib](https://www.curseforge.com/minecraft/mc-mods/puzzles-lib)
+
 ## [v7.0.0-1.20] - 2023-06-11
 - Ported to Minecraft 1.20
 
