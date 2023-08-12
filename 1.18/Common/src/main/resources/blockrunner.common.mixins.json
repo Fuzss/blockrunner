@@ -1,0 +1,17 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "compatibilityLevel": "JAVA_17",
+  "package": "fuzs.blockrunner.mixin",
+  "refmap": "blockrunner.refmap.json",
+  "plugin": "fuzs.blockrunner.mixin.ModMixinConfigPlugin",
+  "mixins": [
+    "LivingEntityMixin"
+  ],
+  "client": [
+    "client.AbstractClientPlayerMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

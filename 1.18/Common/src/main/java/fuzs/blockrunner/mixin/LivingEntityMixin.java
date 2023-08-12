@@ -33,7 +33,7 @@ abstract class LivingEntityMixin extends Entity {
     @Inject(method = "getBlockSpeedFactor", at = @At("HEAD"), cancellable = true)
     protected void getBlockSpeedFactor(CallbackInfoReturnable<Float> callback) {
         // use same block position as the getBlockSpeedFactor implementation
-        if (BlockSpeedManager.INSTANCE.hasBlockSpeed(this.level().getBlockState(this.getBlockPosBelowThatAffectsMyMovement()).getBlock())) {
+        if (BlockSpeedManager.INSTANCE.hasBlockSpeed(this.level.getBlockState(this.getBlockPosBelowThatAffectsMyMovement()).getBlock())) {
             callback.setReturnValue(1.0F);
         }
     }
@@ -46,7 +46,7 @@ abstract class LivingEntityMixin extends Entity {
     @Inject(method = "checkFallDamage", at = @At("HEAD"))
     protected void checkFallDamage(double y, boolean onGround, BlockState state, BlockPos pos, CallbackInfo callback) {
         // also run this client-side for players to counter server delay when calculating fov effects
-        if ((!this.level().isClientSide || LivingEntity.class.cast(this) instanceof Player) && onGround && this.fallDistance > 0.0F) {
+        if ((!this.level.isClientSide || LivingEntity.class.cast(this) instanceof Player) && onGround && this.fallDistance > 0.0F) {
             this.blockrunner$removeBlockSpeed();
             this.blockrunner$tryAddBlockSpeed();
         }
@@ -55,7 +55,7 @@ abstract class LivingEntityMixin extends Entity {
     @Inject(method = "baseTick", at = @At("TAIL"))
     public void baseTick(CallbackInfo callback) {
         // also run this client-side for players to counter server delay when calculating fov effects
-        if (this.level().isClientSide && LivingEntity.class.cast(this) instanceof Player) {
+        if (this.level.isClientSide && LivingEntity.class.cast(this) instanceof Player) {
             BlockPos blockPos = this.blockPosition();
             if (!Objects.equal(this.lastPos, blockPos)) {
                 this.lastPos = blockPos;
@@ -68,7 +68,7 @@ abstract class LivingEntityMixin extends Entity {
     @Unique
     private void blockrunner$onChangedBlock() {
         // check if block not air or player is elytra flying
-        if (this.shouldRemoveSoulSpeed(this.getBlockStateOn())) {
+        if (this.shouldRemoveSoulSpeed(this.blockrunner$getBlockStateOn())) {
             this.blockrunner$removeBlockSpeed();
         }
         this.blockrunner$tryAddBlockSpeed();
@@ -87,7 +87,7 @@ abstract class LivingEntityMixin extends Entity {
     @Unique
     protected void blockrunner$tryAddBlockSpeed() {
         if (!(LivingEntity.class.cast(this) instanceof Player player) || !player.getAbilities().flying) {
-            BlockState blockStateOn = this.getBlockStateOn();
+            BlockState blockStateOn = this.blockrunner$getBlockStateOn();
             if (!blockStateOn.isAir()) {
                 // check the block the entity is directly on to be able to support very thin blocks such as carpet
                 double speedFactor = BlockSpeedManager.INSTANCE.getSpeedFactor(blockStateOn.getBlock());
@@ -105,4 +105,10 @@ abstract class LivingEntityMixin extends Entity {
 
     @Shadow
     protected abstract boolean shouldRemoveSoulSpeed(BlockState state);
+
+    @Unique
+    public BlockState blockrunner$getBlockStateOn() {
+        // subtract same y-value as 1.20 does so that thin blocks like carpet work correctly
+        return this.level.getBlockState(new BlockPos(this.position().x, this.position().y - 1.0E-5F, this.position().z));
+    }
 }
