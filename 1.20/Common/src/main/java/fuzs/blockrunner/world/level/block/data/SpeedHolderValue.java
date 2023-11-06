@@ -68,7 +68,7 @@ public abstract class SpeedHolderValue {
 
         @Override
         void serialize(JsonObject jsonObject) {
-            jsonObject.addProperty("#" + this.tag.location().toString(), this.speedMultiplier);
+            jsonObject.addProperty("#" + this.tag.location(), this.speedMultiplier);
         }
     }
     
