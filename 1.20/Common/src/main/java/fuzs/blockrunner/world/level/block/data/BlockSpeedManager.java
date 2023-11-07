@@ -118,17 +118,18 @@ public class BlockSpeedManager implements ResourceManagerReloadListener {
         }
         for (Map.Entry<String, JsonElement> entry : jsonObject.entrySet()) {
             String key = entry.getKey();
+            if (key.equals("schemaVersion")) continue;
             double speedValue = entry.getValue().getAsDouble();
             if (key.startsWith("#")) {
                 TagKey<Block> tag = TagKey.create(Registries.BLOCK, new ResourceLocation(key.substring(1)));
                 blockSpeedValues.put(tag, new SpeedHolderValue.TagValue(tag, speedValue));
             } else {
-                ResourceLocation resourcelocation = new ResourceLocation(key);
-                if (BuiltInRegistries.BLOCK.containsKey(resourcelocation)) {
+                ResourceLocation resourcelocation = ResourceLocation.tryParse(key);
+                if (resourcelocation != null && BuiltInRegistries.BLOCK.containsKey(resourcelocation)) {
                     Block block = BuiltInRegistries.BLOCK.get(resourcelocation);
                     blockSpeedValues.put(block, new SpeedHolderValue.BlockValue(block, speedValue));
                 } else {
-                    BlockRunner.LOGGER.warn("Unknown block type '{}', valid types are: {}", resourcelocation, Joiner.on(", ").join(BuiltInRegistries.BLOCK.keySet()));
+                    BlockRunner.LOGGER.warn("Unknown block type '{}', valid types are: {}", resourcelocation != null ? resourcelocation : key, Joiner.on(", ").join(BuiltInRegistries.BLOCK.keySet()));
                 }
             }
         }
