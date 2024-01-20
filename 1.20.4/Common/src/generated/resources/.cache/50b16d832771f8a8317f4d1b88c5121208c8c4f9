@@ -1,0 +1,7 @@
+// 1.20.4	2024-01-20T23:03:56.595393	Tags for minecraft:block mod id vanilla
+35133e95f1c8fdd7a1c21afcc231fc0bffefb9a8 data/blockrunner/tags/blocks/quick_blocks.json
+35133e95f1c8fdd7a1c21afcc231fc0bffefb9a8 data/blockrunner/tags/blocks/slightly_quick_blocks.json
+35133e95f1c8fdd7a1c21afcc231fc0bffefb9a8 data/blockrunner/tags/blocks/slightly_slow_blocks.json
+35133e95f1c8fdd7a1c21afcc231fc0bffefb9a8 data/blockrunner/tags/blocks/slow_blocks.json
+35133e95f1c8fdd7a1c21afcc231fc0bffefb9a8 data/blockrunner/tags/blocks/very_quick_blocks.json
+35133e95f1c8fdd7a1c21afcc231fc0bffefb9a8 data/blockrunner/tags/blocks/very_slow_blocks.json

@@ -2,7 +2,7 @@ package fuzs.blockrunner.client;
 
 import fuzs.blockrunner.client.handler.BlockSpeedTooltipHandler;
 import fuzs.puzzleslib.api.client.core.v1.ClientModConstructor;
-import fuzs.puzzleslib.api.client.event.v1.ItemTooltipCallback;
+import fuzs.puzzleslib.api.client.event.v1.gui.ItemTooltipCallback;
 
 public class BlockRunnerClient implements ClientModConstructor {
 

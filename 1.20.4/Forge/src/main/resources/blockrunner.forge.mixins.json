@@ -2,12 +2,10 @@
   "required": true,
   "minVersion": "0.8",
   "compatibilityLevel": "JAVA_17",
-  "package": "${modGroup}.mixin",
+  "package": "${modGroup}.forge.mixin",
   "mixins": [
-    "LivingEntityMixin"
   ],
   "client": [
-    "client.AbstractClientPlayerMixin"
   ],
   "injectors": {
     "defaultRequire": 1

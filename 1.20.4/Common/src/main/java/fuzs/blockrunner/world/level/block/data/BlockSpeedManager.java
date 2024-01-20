@@ -9,8 +9,8 @@ import fuzs.blockrunner.BlockRunner;
 import fuzs.blockrunner.init.ModRegistry;
 import fuzs.blockrunner.network.S2CBlockSpeedMessage;
 import fuzs.puzzleslib.api.config.v3.json.JsonConfigFileUtil;
+import fuzs.puzzleslib.api.core.v1.CommonAbstractions;
 import fuzs.puzzleslib.api.core.v1.ModLoaderEnvironment;
-import fuzs.puzzleslib.api.core.v1.Proxy;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
@@ -59,7 +59,7 @@ public class BlockSpeedManager implements ResourceManagerReloadListener {
     public void onResourceManagerReload(ResourceManager resourceManager) {
         JsonConfigFileUtil.getAndLoad(CONFIG_FILE_NAME, this::serialize, this::deserialize);
         // this is also called when the server is starting and Forge has not set the game server object yet
-        if (ModLoaderEnvironment.INSTANCE.isServer() && Proxy.INSTANCE.getGameServer() != null) {
+        if (ModLoaderEnvironment.INSTANCE.isServer() && CommonAbstractions.INSTANCE.getMinecraftServer() != null) {
             BlockRunner.NETWORK.sendToAll(new S2CBlockSpeedMessage(this.serialize(this.blockSpeedValues)));
         }
     }
@@ -95,7 +95,7 @@ public class BlockSpeedManager implements ResourceManagerReloadListener {
 
     private JsonObject serialize(Set<SpeedHolderValue> values) {
         JsonObject jsonElements = new JsonObject();
-        jsonElements.addProperty("schemaVersion", SCHEMA_VERSION);
+        jsonElements.addProperty("schema_version", SCHEMA_VERSION);
         for (SpeedHolderValue value : values) {
             value.serialize(jsonElements);
         }
@@ -110,7 +110,7 @@ public class BlockSpeedManager implements ResourceManagerReloadListener {
         this.blockSpeedValues.clear();
         this.blockSpeeds = null;
         Map<Object, SpeedHolderValue> blockSpeedValues = Maps.newIdentityHashMap();
-        String schemaVersion = GsonHelper.getAsString(jsonObject, "schema_version", "1");
+        String schemaVersion = GsonHelper.getAsString(jsonObject, "schema_version", GsonHelper.getAsString(jsonObject, "schemaVersion", "1"));
         if (!schemaVersion.equals(SCHEMA_VERSION)) {
             BlockRunner.LOGGER.warn("Outdated config schema! Config might not work correctly. Current schema is {}.", SCHEMA_VERSION);
             blockSpeedValues.put(BlockTags.STONE_BRICKS, new SpeedHolderValue.TagValue(BlockTags.STONE_BRICKS, 1.15));
@@ -118,7 +118,7 @@ public class BlockSpeedManager implements ResourceManagerReloadListener {
         }
         for (Map.Entry<String, JsonElement> entry : jsonObject.entrySet()) {
             String key = entry.getKey();
-            if (key.equals("schemaVersion")) continue;
+            if (key.equals("schema_version") || key.equals("schemaVersion")) continue;
             double speedValue = entry.getValue().getAsDouble();
             if (key.startsWith("#")) {
                 TagKey<Block> tag = TagKey.create(Registries.BLOCK, new ResourceLocation(key.substring(1)));

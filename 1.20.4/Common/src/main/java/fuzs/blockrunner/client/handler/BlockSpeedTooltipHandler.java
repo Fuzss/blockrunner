@@ -14,13 +14,14 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 
 public class BlockSpeedTooltipHandler {
+    public static final String KEY_SPEED_MULTIPLIER = "block.blockrunner.speedMultiplier";
 
     public static void onItemTooltip(ItemStack stack, @Nullable Player player, List<Component> lines, TooltipFlag context) {
         if (!BlockRunner.CONFIG.getHolder(ClientConfig.class).isAvailable() || !BlockRunner.CONFIG.get(ClientConfig.class).blockSpeedMultiplierTooltip) {
             return;
         }
         if (stack.getItem() instanceof BlockItem item && BlockSpeedManager.INSTANCE.hasBlockSpeed(item.getBlock())) {
-            lines.add(Component.translatable("block.blockrunner.speedMultiplier", BlockSpeedManager.INSTANCE.getSpeedFactor(item.getBlock())).withStyle(ChatFormatting.GRAY));
+            lines.add(Component.translatable(KEY_SPEED_MULTIPLIER, BlockSpeedManager.INSTANCE.getSpeedFactor(item.getBlock())).withStyle(ChatFormatting.GRAY));
         }
     }
 }

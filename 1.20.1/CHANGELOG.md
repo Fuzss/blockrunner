@@ -3,6 +3,10 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog].
 
+## [v8.0.3-1.20.1] - 2024-01-20
+### Fixed
+- Fix unable to remove default entries from config file
+
 ## [v8.0.2-1.20.1] - 2023-11-07
 ### Fixed
 - Fixed crash on loading world when reading a freshly created `blockrunner.json` config file
