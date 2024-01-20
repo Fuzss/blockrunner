@@ -1,0 +1,7 @@
+// 1.20.1	2023-09-14T08:14:23.846441	Tags for minecraft:block mod id blockrunner
+35133e95f1c8fdd7a1c21afcc231fc0bffefb9a8 data/blockrunner/tags/blocks/quick_blocks.json
+35133e95f1c8fdd7a1c21afcc231fc0bffefb9a8 data/blockrunner/tags/blocks/slightly_quick_blocks.json
+35133e95f1c8fdd7a1c21afcc231fc0bffefb9a8 data/blockrunner/tags/blocks/slightly_slow_blocks.json
+35133e95f1c8fdd7a1c21afcc231fc0bffefb9a8 data/blockrunner/tags/blocks/slow_blocks.json
+35133e95f1c8fdd7a1c21afcc231fc0bffefb9a8 data/blockrunner/tags/blocks/very_quick_blocks.json
+35133e95f1c8fdd7a1c21afcc231fc0bffefb9a8 data/blockrunner/tags/blocks/very_slow_blocks.json
