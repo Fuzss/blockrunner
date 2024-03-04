@@ -8,10 +8,10 @@ public class BlockRunnerClient implements ClientModConstructor {
 
     @Override
     public void onConstructMod() {
-        registerHandlers();
+        registerEventHandlers();
     }
 
-    private static void registerHandlers() {
+    private static void registerEventHandlers() {
         ItemTooltipCallback.EVENT.register(BlockSpeedTooltipHandler::onItemTooltip);
     }
 }

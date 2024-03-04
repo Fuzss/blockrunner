@@ -3,6 +3,10 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog].
 
+## [v8.0.4-1.20.1] - 2024-03-04
+### Fixed
+- Fix block speed values failing to synchronize to clients during lan play
+
 ## [v8.0.3-1.20.1] - 2024-01-20
 ### Fixed
 - Fix unable to remove default entries from config file

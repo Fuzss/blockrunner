@@ -20,7 +20,6 @@ import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.GsonHelper;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 
@@ -49,10 +48,8 @@ public class BlockSpeedManager implements ResourceManagerReloadListener {
     private final Set<SpeedHolderValue> blockSpeedValues = Sets.newHashSet();
     private Map<Block, Double> blockSpeeds;
 
-    public void onPlayerLoggedIn(Player player) {
-        if (ModLoaderEnvironment.INSTANCE.isServer()) {
-            BlockRunner.NETWORK.sendTo(new S2CBlockSpeedMessage(this.serialize(this.blockSpeedValues)), (ServerPlayer) player);
-        }
+    public void onSyncDataPackContents(ServerPlayer player, boolean joined) {
+        BlockRunner.NETWORK.sendTo(new S2CBlockSpeedMessage(this.serialize(this.blockSpeedValues)), player);
     }
 
     @Override
