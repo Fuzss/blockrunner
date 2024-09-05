@@ -11,9 +11,11 @@ import fuzs.blockrunner.network.S2CBlockSpeedMessage;
 import fuzs.puzzleslib.api.config.v3.json.JsonConfigFileUtil;
 import fuzs.puzzleslib.api.core.v1.CommonAbstractions;
 import fuzs.puzzleslib.api.core.v1.ModLoaderEnvironment;
+import fuzs.puzzleslib.api.core.v1.utility.ResourceLocationHelper;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
@@ -33,9 +35,10 @@ public class BlockSpeedManager implements ResourceManagerReloadListener {
     public static final BlockSpeedManager INSTANCE = new BlockSpeedManager();
     public static final String SCHEMA_VERSION = String.valueOf(2);
     public static final UUID SPEED_MODIFIER_BLOCK_SPEED_UUID = UUID.fromString("23237052-61AD-11EB-AE93-0242AC130002");
+    public static final ResourceLocation SPEED_MODIFIER_BLOCK_SPEED_IDENTIFIER = BlockRunner.id("block_speed");
     private static final String CONFIG_FILE_NAME = BlockRunner.MOD_ID + ".json";
-    private static final Set<SpeedHolderValue> DEFAULT_BLOCK_SPEEDS = new SpeedHolderValue.Builder()
-            .add(BlockTags.STONE_BRICKS, 1.15)
+    private static final Set<SpeedHolderValue> DEFAULT_BLOCK_SPEEDS = new SpeedHolderValue.Builder().add(
+                    BlockTags.STONE_BRICKS, 1.15)
             .add(Blocks.DIRT_PATH, 1.35)
             .add(ModRegistry.VERY_SLOW_BLOCKS_BLOCK_TAG, 0.45)
             .add(ModRegistry.SLOW_BLOCKS_BLOCK_TAG, 0.65)
@@ -49,15 +52,22 @@ public class BlockSpeedManager implements ResourceManagerReloadListener {
     private Map<Block, Double> blockSpeeds;
 
     public void onSyncDataPackContents(ServerPlayer player, boolean joined) {
-        BlockRunner.NETWORK.sendTo(new S2CBlockSpeedMessage(this.serialize(this.blockSpeedValues)), player);
+        BlockRunner.NETWORK.sendTo(player,
+                new S2CBlockSpeedMessage(this.serialize(this.blockSpeedValues)).toClientboundMessage()
+        );
     }
 
     @Override
     public void onResourceManagerReload(ResourceManager resourceManager) {
         JsonConfigFileUtil.getAndLoad(CONFIG_FILE_NAME, this::serialize, this::deserialize);
         // this is also called when the server is starting and Forge has not set the game server object yet
-        if (ModLoaderEnvironment.INSTANCE.isServer() && CommonAbstractions.INSTANCE.getMinecraftServer() != null) {
-            BlockRunner.NETWORK.sendToAll(new S2CBlockSpeedMessage(this.serialize(this.blockSpeedValues)));
+        if (ModLoaderEnvironment.INSTANCE.isServer()) {
+            MinecraftServer minecraftServer = CommonAbstractions.INSTANCE.getMinecraftServer();
+            if (minecraftServer != null) {
+                BlockRunner.NETWORK.sendToAll(minecraftServer,
+                        new S2CBlockSpeedMessage(this.serialize(this.blockSpeedValues)).toClientboundMessage()
+                );
+            }
         }
     }
 
@@ -107,9 +117,13 @@ public class BlockSpeedManager implements ResourceManagerReloadListener {
         this.blockSpeedValues.clear();
         this.blockSpeeds = null;
         Map<Object, SpeedHolderValue> blockSpeedValues = Maps.newIdentityHashMap();
-        String schemaVersion = GsonHelper.getAsString(jsonObject, "schema_version", GsonHelper.getAsString(jsonObject, "schemaVersion", "1"));
+        String schemaVersion = GsonHelper.getAsString(jsonObject, "schema_version",
+                GsonHelper.getAsString(jsonObject, "schemaVersion", "1")
+        );
         if (!schemaVersion.equals(SCHEMA_VERSION)) {
-            BlockRunner.LOGGER.warn("Outdated config schema! Config might not work correctly. Current schema is {}.", SCHEMA_VERSION);
+            BlockRunner.LOGGER.warn("Outdated config schema! Config might not work correctly. Current schema is {}.",
+                    SCHEMA_VERSION
+            );
             blockSpeedValues.put(BlockTags.STONE_BRICKS, new SpeedHolderValue.TagValue(BlockTags.STONE_BRICKS, 1.15));
             blockSpeedValues.put(Blocks.DIRT_PATH, new SpeedHolderValue.BlockValue(Blocks.DIRT_PATH, 1.35));
         }
@@ -118,7 +132,7 @@ public class BlockSpeedManager implements ResourceManagerReloadListener {
             if (key.equals("schema_version") || key.equals("schemaVersion")) continue;
             double speedValue = entry.getValue().getAsDouble();
             if (key.startsWith("#")) {
-                TagKey<Block> tag = TagKey.create(Registries.BLOCK, new ResourceLocation(key.substring(1)));
+                TagKey<Block> tag = TagKey.create(Registries.BLOCK, ResourceLocationHelper.parse(key.substring(1)));
                 blockSpeedValues.put(tag, new SpeedHolderValue.TagValue(tag, speedValue));
             } else {
                 ResourceLocation resourcelocation = ResourceLocation.tryParse(key);
@@ -126,7 +140,10 @@ public class BlockSpeedManager implements ResourceManagerReloadListener {
                     Block block = BuiltInRegistries.BLOCK.get(resourcelocation);
                     blockSpeedValues.put(block, new SpeedHolderValue.BlockValue(block, speedValue));
                 } else {
-                    BlockRunner.LOGGER.warn("Unknown block type '{}', valid types are: {}", resourcelocation != null ? resourcelocation : key, Joiner.on(", ").join(BuiltInRegistries.BLOCK.keySet()));
+                    BlockRunner.LOGGER.warn("Unknown block type '{}', valid types are: {}",
+                            resourcelocation != null ? resourcelocation : key,
+                            Joiner.on(", ").join(BuiltInRegistries.BLOCK.keySet())
+                    );
                 }
             }
         }

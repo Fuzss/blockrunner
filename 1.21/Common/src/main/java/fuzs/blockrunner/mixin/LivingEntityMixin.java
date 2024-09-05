@@ -3,6 +3,8 @@ package fuzs.blockrunner.mixin;
 import com.google.common.base.Objects;
 import fuzs.blockrunner.world.level.block.data.BlockSpeedManager;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
@@ -39,7 +41,7 @@ abstract class LivingEntityMixin extends Entity {
     }
 
     @Inject(method = "onChangedBlock", at = @At("TAIL"))
-    protected void onChangedBlock(BlockPos pos, CallbackInfo callback) {
+    protected void onChangedBlock(ServerLevel level, BlockPos pos, CallbackInfo callback) {
         this.blockrunner$onChangedBlock();
     }
 
@@ -68,7 +70,7 @@ abstract class LivingEntityMixin extends Entity {
     @Unique
     private void blockrunner$onChangedBlock() {
         // check if block not air or player is elytra flying
-        if (this.shouldRemoveSoulSpeed(this.getBlockStateOn())) {
+        if (!this.getBlockStateOn().isAir() || this.isFallFlying() || LivingEntity.class.cast(this) instanceof Player player && player.getAbilities().flying) {
             this.blockrunner$removeBlockSpeed();
         }
         this.blockrunner$tryAddBlockSpeed();
@@ -78,8 +80,8 @@ abstract class LivingEntityMixin extends Entity {
     private void blockrunner$removeBlockSpeed() {
         AttributeInstance attribute = this.getAttribute(Attributes.MOVEMENT_SPEED);
         if (attribute != null) {
-            if (attribute.getModifier(BlockSpeedManager.SPEED_MODIFIER_BLOCK_SPEED_UUID) != null) {
-                attribute.removeModifier(BlockSpeedManager.SPEED_MODIFIER_BLOCK_SPEED_UUID);
+            if (attribute.getModifier(BlockSpeedManager.SPEED_MODIFIER_BLOCK_SPEED_IDENTIFIER) != null) {
+                attribute.removeModifier(BlockSpeedManager.SPEED_MODIFIER_BLOCK_SPEED_IDENTIFIER);
             }
         }
     }
@@ -87,22 +89,22 @@ abstract class LivingEntityMixin extends Entity {
     @Unique
     protected void blockrunner$tryAddBlockSpeed() {
         if (!(LivingEntity.class.cast(this) instanceof Player player) || !player.getAbilities().flying) {
-            BlockState blockStateOn = this.getBlockStateOn();
-            if (!blockStateOn.isAir()) {
+            BlockState blockState = this.getBlockStateOn();
+            if (!blockState.isAir()) {
                 // check the block the entity is directly on to be able to support very thin blocks such as carpet
-                double speedFactor = BlockSpeedManager.INSTANCE.getSpeedFactor(blockStateOn.getBlock());
+                double speedFactor = BlockSpeedManager.INSTANCE.getSpeedFactor(blockState.getBlock());
                 AttributeInstance attribute = this.getAttribute(Attributes.MOVEMENT_SPEED);
                 if (attribute == null || speedFactor == 1.0) return;
                 double baseValue = attribute.getBaseValue();
                 speedFactor = speedFactor * baseValue - baseValue;
-                attribute.addTransientModifier(new AttributeModifier(BlockSpeedManager.SPEED_MODIFIER_BLOCK_SPEED_UUID, "Block speed boost", speedFactor, AttributeModifier.Operation.ADDITION));
+                attribute.addTransientModifier(new AttributeModifier(BlockSpeedManager.SPEED_MODIFIER_BLOCK_SPEED_IDENTIFIER, speedFactor, AttributeModifier.Operation.ADD_VALUE));
             }
         }
     }
 
     @Shadow
-    public abstract AttributeInstance getAttribute(Attribute attribute);
+    public abstract AttributeInstance getAttribute(Holder<Attribute> attribute);
 
     @Shadow
-    protected abstract boolean shouldRemoveSoulSpeed(BlockState state);
+    public abstract boolean isFallFlying();
 }

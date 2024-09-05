@@ -24,7 +24,8 @@ abstract class AbstractClientPlayerMixin extends Player {
         // use a mixin here instead of using Forge's ComputeFovModifierEvent since this happens very early, and we'd have to reapply a lot of calculations otherwise
         if (FieldOfViewHelper.shouldRemoveBlockSpeedModifier(this)) {
             return FieldOfViewHelper.getFieldOfViewModifierWithoutBlockSpeed(this);
+        } else {
+            return fovModifier;
         }
-        return fovModifier;
     }
 }
