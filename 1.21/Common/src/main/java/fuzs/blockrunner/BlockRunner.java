@@ -1,0 +1,47 @@
+package fuzs.blockrunner;
+
+import fuzs.blockrunner.config.ClientConfig;
+import fuzs.blockrunner.init.ModRegistry;
+import fuzs.blockrunner.network.S2CBlockSpeedMessage;
+import fuzs.blockrunner.world.level.block.data.BlockSpeedManager;
+import fuzs.puzzleslib.api.config.v3.ConfigHolder;
+import fuzs.puzzleslib.api.core.v1.ModConstructor;
+import fuzs.puzzleslib.api.core.v1.context.AddReloadListenersContext;
+import fuzs.puzzleslib.api.event.v1.server.SyncDataPackContentsCallback;
+import fuzs.puzzleslib.api.network.v2.NetworkHandlerV2;
+import net.minecraft.resources.ResourceLocation;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+public class BlockRunner implements ModConstructor {
+    public static final String MOD_ID = "blockrunner";
+    public static final String MOD_NAME = "Block Runner";
+    public static final Logger LOGGER = LoggerFactory.getLogger(MOD_NAME);
+
+    public static final ConfigHolder CONFIG = ConfigHolder.builder(MOD_ID).client(ClientConfig.class);
+    public static final NetworkHandlerV2 NETWORK = NetworkHandlerV2.build(MOD_ID, false);
+
+    @Override
+    public void onConstructMod() {
+        ModRegistry.touch();
+        registerMessages();
+        registerEventHandlers();
+    }
+
+    private static void registerMessages() {
+        NETWORK.registerClientbound(S2CBlockSpeedMessage.class, S2CBlockSpeedMessage::new);
+    }
+
+    private static void registerEventHandlers() {
+        SyncDataPackContentsCallback.EVENT.register(BlockSpeedManager.INSTANCE::onSyncDataPackContents);
+    }
+
+    @Override
+    public void onRegisterDataPackReloadListeners(AddReloadListenersContext context) {
+        context.registerReloadListener("block_speeds", BlockSpeedManager.INSTANCE);
+    }
+
+    public static ResourceLocation id(String path) {
+        return new ResourceLocation(MOD_ID, path);
+    }
+}
