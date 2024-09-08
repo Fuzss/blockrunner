@@ -1,7 +1,7 @@
 package fuzs.blockrunner.mixin;
 
 import com.google.common.base.Objects;
-import fuzs.blockrunner.world.level.block.data.BlockSpeedManager;
+import fuzs.blockrunner.world.level.block.data.BlockSpeed;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.server.level.ServerLevel;
@@ -35,7 +35,7 @@ abstract class LivingEntityMixin extends Entity {
     @Inject(method = "getBlockSpeedFactor", at = @At("HEAD"), cancellable = true)
     protected void getBlockSpeedFactor(CallbackInfoReturnable<Float> callback) {
         // use same block position as the getBlockSpeedFactor implementation
-        if (BlockSpeedManager.INSTANCE.hasBlockSpeed(this.level().getBlockState(this.getBlockPosBelowThatAffectsMyMovement()).getBlock())) {
+        if (BlockSpeed.hasBlockSpeed(this.level().getBlockState(this.getBlockPosBelowThatAffectsMyMovement()).getBlock())) {
             callback.setReturnValue(1.0F);
         }
     }
@@ -80,8 +80,8 @@ abstract class LivingEntityMixin extends Entity {
     private void blockrunner$removeBlockSpeed() {
         AttributeInstance attribute = this.getAttribute(Attributes.MOVEMENT_SPEED);
         if (attribute != null) {
-            if (attribute.getModifier(BlockSpeedManager.SPEED_MODIFIER_BLOCK_SPEED_IDENTIFIER) != null) {
-                attribute.removeModifier(BlockSpeedManager.SPEED_MODIFIER_BLOCK_SPEED_IDENTIFIER);
+            if (attribute.getModifier(BlockSpeed.SPEED_MODIFIER_BLOCK_SPEED_IDENTIFIER) != null) {
+                attribute.removeModifier(BlockSpeed.SPEED_MODIFIER_BLOCK_SPEED_IDENTIFIER);
             }
         }
     }
@@ -92,12 +92,12 @@ abstract class LivingEntityMixin extends Entity {
             BlockState blockState = this.getBlockStateOn();
             if (!blockState.isAir()) {
                 // check the block the entity is directly on to be able to support very thin blocks such as carpet
-                double speedFactor = BlockSpeedManager.INSTANCE.getSpeedFactor(blockState.getBlock());
+                double speedFactor = BlockSpeed.getSpeedFactor(blockState.getBlock());
                 AttributeInstance attribute = this.getAttribute(Attributes.MOVEMENT_SPEED);
                 if (attribute == null || speedFactor == 1.0) return;
                 double baseValue = attribute.getBaseValue();
                 speedFactor = speedFactor * baseValue - baseValue;
-                attribute.addTransientModifier(new AttributeModifier(BlockSpeedManager.SPEED_MODIFIER_BLOCK_SPEED_IDENTIFIER, speedFactor, AttributeModifier.Operation.ADD_VALUE));
+                attribute.addTransientModifier(new AttributeModifier(BlockSpeed.SPEED_MODIFIER_BLOCK_SPEED_IDENTIFIER, speedFactor, AttributeModifier.Operation.ADD_VALUE));
             }
         }
     }

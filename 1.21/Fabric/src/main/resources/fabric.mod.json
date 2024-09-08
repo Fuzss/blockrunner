@@ -41,5 +41,16 @@
     "puzzleslib": ">=${minPuzzlesVersion}",
     "minecraft": "${minecraftVersion}",
     "java": ">=17"
+  },
+
+  "custom": {
+    "loom:injected_interfaces": {
+      "net/minecraft/class_6880": [
+        "net/neoforged/neoforge/registries/datamaps/IWithData<TT;>"
+      ],
+      "net/minecraft/class_2378": [
+        "net/neoforged/neoforge/registries/IRegistryExtension<TT;>"
+      ]
+    }
   }
 }

@@ -4,7 +4,7 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import fuzs.blockrunner.BlockRunner;
 import fuzs.blockrunner.config.ClientConfig;
-import fuzs.blockrunner.world.level.block.data.BlockSpeedManager;
+import fuzs.blockrunner.world.level.block.data.BlockSpeed;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
@@ -25,7 +25,7 @@ public class FieldOfViewHelper {
         if (!BlockRunner.CONFIG.get(ClientConfig.class).disableFieldOfViewChanges) return false;
         if (Minecraft.getInstance().options.getCameraType().isFirstPerson() && player.isScoping()) return false;
         return player.getAttributes().hasModifier(Attributes.MOVEMENT_SPEED,
-                BlockSpeedManager.SPEED_MODIFIER_BLOCK_SPEED_IDENTIFIER
+                BlockSpeed.SPEED_MODIFIER_BLOCK_SPEED_IDENTIFIER
         );
     }
 
@@ -34,7 +34,7 @@ public class FieldOfViewHelper {
         AttributeInstance attribute = player.getAttribute(Attributes.MOVEMENT_SPEED);
         if (attribute != null) {
             double movementSpeed = calculateAttributeValueSkipping(attribute,
-                    BlockSpeedManager.SPEED_MODIFIER_BLOCK_SPEED_IDENTIFIER
+                    BlockSpeed.SPEED_MODIFIER_BLOCK_SPEED_IDENTIFIER
             );
             fovModifier *= ((float) movementSpeed / player.getAbilities().getWalkingSpeed() + 1.0F) / 2.0F;
         }

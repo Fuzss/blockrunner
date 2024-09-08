@@ -2,7 +2,7 @@ package fuzs.blockrunner.client.handler;
 
 import fuzs.blockrunner.BlockRunner;
 import fuzs.blockrunner.config.ClientConfig;
-import fuzs.blockrunner.world.level.block.data.BlockSpeedManager;
+import fuzs.blockrunner.world.level.block.data.BlockSpeed;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
@@ -22,11 +22,9 @@ public class BlockSpeedTooltipHandler {
                 ClientConfig.class).blockSpeedMultiplierTooltip) {
             return;
         }
-        if (itemStack.getItem() instanceof BlockItem item && BlockSpeedManager.INSTANCE.hasBlockSpeed(
-                item.getBlock())) {
-            lines.add(Component.translatable(KEY_SPEED_MULTIPLIER,
-                    BlockSpeedManager.INSTANCE.getSpeedFactor(item.getBlock())
-            ).withStyle(ChatFormatting.GRAY));
+        if (itemStack.getItem() instanceof BlockItem item && BlockSpeed.hasBlockSpeed(item.getBlock())) {
+            lines.add(Component.translatable(KEY_SPEED_MULTIPLIER, BlockSpeed.getSpeedFactor(item.getBlock()))
+                    .withStyle(ChatFormatting.GRAY));
         }
     }
 }
