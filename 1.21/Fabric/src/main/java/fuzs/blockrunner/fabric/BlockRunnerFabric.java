@@ -3,8 +3,6 @@ package fuzs.blockrunner.fabric;
 import fuzs.blockrunner.BlockRunner;
 import fuzs.puzzleslib.api.core.v1.ModConstructor;
 import net.fabricmc.api.ModInitializer;
-import net.fabricmc.fabric.api.client.networking.v1.ClientConfigurationNetworking;
-import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.event.lifecycle.v1.CommonLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
@@ -26,7 +24,6 @@ import net.neoforged.neoforge.network.configuration.RegistryDataMapNegotiation;
 import net.neoforged.neoforge.network.payload.KnownRegistryDataMapsPayload;
 import net.neoforged.neoforge.network.payload.KnownRegistryDataMapsReplyPayload;
 import net.neoforged.neoforge.network.payload.RegistryDataMapSyncPayload;
-import net.neoforged.neoforge.registries.ClientRegistryManager;
 import net.neoforged.neoforge.registries.DataMapLoader;
 import net.neoforged.neoforge.registries.RegistryManager;
 
@@ -80,27 +77,6 @@ public class BlockRunnerFabric implements ModInitializer {
         });
     }
 
-    private static void registerNetworkMessages() {
-        PayloadTypeRegistry.configurationC2S().register(KnownRegistryDataMapsReplyPayload.TYPE,
-                KnownRegistryDataMapsReplyPayload.STREAM_CODEC
-        );
-        ServerConfigurationNetworking.registerGlobalReceiver(KnownRegistryDataMapsReplyPayload.TYPE,
-                RegistryManager::handleKnownDataMapsReply
-        );
-        PayloadTypeRegistry.configurationS2C().register(KnownRegistryDataMapsPayload.TYPE,
-                KnownRegistryDataMapsPayload.STREAM_CODEC
-        );
-        ClientConfigurationNetworking.registerGlobalReceiver(KnownRegistryDataMapsPayload.TYPE,
-                ClientRegistryManager::handleKnownDataMaps
-        );
-        PayloadTypeRegistry.playS2C().register(RegistryDataMapSyncPayload.TYPE,
-                RegistryDataMapSyncPayload.STREAM_CODEC
-        );
-        ClientPlayNetworking.registerGlobalReceiver(RegistryDataMapSyncPayload.TYPE,
-                ClientRegistryManager::handleDataMapSync
-        );
-    }
-
     private static <T> void handleSync(ServerPlayer player, Registry<T> registry, Collection<ResourceLocation> attachments) {
         if (attachments.isEmpty()) return;
         final Map<ResourceLocation, Map<ResourceKey<T>, ?>> att = new HashMap<>();
@@ -112,5 +88,20 @@ public class BlockRunnerFabric implements ModInitializer {
         if (!att.isEmpty()) {
             ServerPlayNetworking.send(player, new RegistryDataMapSyncPayload<>(registry.key(), att));
         }
+    }
+
+    private static void registerNetworkMessages() {
+        PayloadTypeRegistry.configurationC2S().register(KnownRegistryDataMapsReplyPayload.TYPE,
+                KnownRegistryDataMapsReplyPayload.STREAM_CODEC
+        );
+        PayloadTypeRegistry.configurationS2C().register(KnownRegistryDataMapsPayload.TYPE,
+                KnownRegistryDataMapsPayload.STREAM_CODEC
+        );
+        PayloadTypeRegistry.playS2C().register(RegistryDataMapSyncPayload.TYPE,
+                RegistryDataMapSyncPayload.STREAM_CODEC
+        );
+        ServerConfigurationNetworking.registerGlobalReceiver(KnownRegistryDataMapsReplyPayload.TYPE,
+                RegistryManager::handleKnownDataMapsReply
+        );
     }
 }

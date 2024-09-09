@@ -5,12 +5,13 @@
   "package": "${modGroup}.fabric.mixin",
   "mixins": [
     "HolderFabricMixin",
-    "HolderLookupDelegateFabricMixin",
-    "HolderLookupRegistryLookupFabricMixin",
+    "HolderLookup\u0024RegistryLookup\u0024DelegateFabricMixin",
+    "HolderLookup\u0024RegistryLookupFabricMixin",
     "HolderReferenceFabricMixin",
+    "MappedRegistry\u0024LookupFabricMixin",
     "MappedRegistryFabricMixin",
-    "MappedRegistryLookupFabricMixin",
-    "RegistryFabricMixin"
+    "RegistryFabricMixin",
+    "TagLoaderFabricMixin"
   ],
   "client": [
   ],
