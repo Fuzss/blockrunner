@@ -1,9 +1,9 @@
 package fuzs.blockrunner.init;
 
 import fuzs.blockrunner.BlockRunner;
-import fuzs.blockrunner.CommonAbstractions;
-import fuzs.blockrunner.DataMapToken;
 import fuzs.blockrunner.world.level.block.data.BlockSpeed;
+import fuzs.neoforgedatapackextensions.api.v1.DataMapRegistry;
+import fuzs.neoforgedatapackextensions.api.v1.DataMapToken;
 import fuzs.puzzleslib.api.init.v3.tags.BoundTagFactory;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.tags.TagKey;
@@ -18,7 +18,7 @@ public class ModRegistry {
     public static final TagKey<Block> QUICK_BLOCKS_BLOCK_TAG = TAGS.registerBlockTag("quick_blocks");
     public static final TagKey<Block> VERY_QUICK_BLOCKS_BLOCK_TAG = TAGS.registerBlockTag("very_quick_blocks");
 
-    public static final DataMapToken<Block, BlockSpeed> BLOCK_SPEED_DATA_MAP_TYPE = CommonAbstractions.registerDataMap(
+    public static final DataMapToken<Block, BlockSpeed> BLOCK_SPEED_DATA_MAP_TYPE = DataMapRegistry.INSTANCE.register(
             BlockRunner.id("block_speeds"), Registries.BLOCK, BlockSpeed.CODEC, BlockSpeed.SPEED_CODEC, true);
 
     public static void touch() {

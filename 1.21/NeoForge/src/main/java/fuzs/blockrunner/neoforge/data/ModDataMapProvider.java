@@ -1,8 +1,8 @@
 package fuzs.blockrunner.neoforge.data;
 
 import fuzs.blockrunner.init.ModRegistry;
-import fuzs.blockrunner.neoforge.NeoForgeDataMapToken;
 import fuzs.blockrunner.world.level.block.data.BlockSpeed;
+import fuzs.neoforgedatapackextensions.neoforge.api.v1.NeoForgeDataMapToken;
 import fuzs.puzzleslib.api.data.v2.core.DataProviderContext;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.PackOutput;
@@ -24,7 +24,8 @@ public class ModDataMapProvider extends DataMapProvider {
 
     @Override
     protected void gather() {
-        Builder<BlockSpeed, Block> builder = this.builder(NeoForgeDataMapToken.unwrap(ModRegistry.BLOCK_SPEED_DATA_MAP_TYPE));
+        Builder<BlockSpeed, Block> builder = this.builder(
+                NeoForgeDataMapToken.unwrap(ModRegistry.BLOCK_SPEED_DATA_MAP_TYPE));
         register(builder, ModRegistry.VERY_SLOW_BLOCKS_BLOCK_TAG, 0.45);
         register(builder, ModRegistry.SLOW_BLOCKS_BLOCK_TAG, 0.65);
         register(builder, ModRegistry.SLIGHTLY_SLOW_BLOCKS_BLOCK_TAG, 0.85);

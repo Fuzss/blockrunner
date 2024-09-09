@@ -3,8 +3,8 @@ package fuzs.blockrunner.world.level.block.data;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import fuzs.blockrunner.BlockRunner;
-import fuzs.blockrunner.CommonAbstractions;
 import fuzs.blockrunner.init.ModRegistry;
+import fuzs.neoforgedatapackextensions.api.v1.DataMapRegistry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.Block;
 
@@ -20,11 +20,12 @@ public record BlockSpeed(double speed) {
                     .forGetter(BlockSpeed::speed)).apply(in, BlockSpeed::new)), SPEED_CODEC);
 
     public static boolean hasBlockSpeed(Block block) {
-        return CommonAbstractions.getData(ModRegistry.BLOCK_SPEED_DATA_MAP_TYPE, block.builtInRegistryHolder()) != null;
+        return DataMapRegistry.INSTANCE.getData(ModRegistry.BLOCK_SPEED_DATA_MAP_TYPE, block.builtInRegistryHolder()) !=
+                null;
     }
 
     public static double getSpeedFactor(Block block) {
-        BlockSpeed blockSpeed = CommonAbstractions.getData(ModRegistry.BLOCK_SPEED_DATA_MAP_TYPE,
+        BlockSpeed blockSpeed = DataMapRegistry.INSTANCE.getData(ModRegistry.BLOCK_SPEED_DATA_MAP_TYPE,
                 block.builtInRegistryHolder()
         );
         return blockSpeed != null ? blockSpeed.speed() : 1.0;

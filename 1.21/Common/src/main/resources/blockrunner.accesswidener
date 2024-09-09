@@ -1,9 +1,1 @@
 accessWidener   v2  named
-accessible  field   net/minecraft/network/Connection    channel Lio/netty/channel/Channel;
-accessible  field   net/minecraft/server/network/ServerCommonPacketListenerImpl connection  Lnet/minecraft/network/Connection;
-accessible  class   net/minecraft/server/ReloadableServerResources$ConfigurableRegistryLookup
-accessible  field   net/minecraft/server/ReloadableServerResources$ConfigurableRegistryLookup   registryAccess  Lnet/minecraft/core/RegistryAccess;
-extendable	method	net/minecraft/tags/TagEntry	<init>	(Lnet/minecraft/resources/ResourceLocation;ZZ)V
-accessible	field	net/minecraft/tags/TagEntry	id	Lnet/minecraft/resources/ResourceLocation;
-accessible	field	net/minecraft/tags/TagEntry	tag	Z
-accessible	field	net/minecraft/tags/TagEntry	required	Z
