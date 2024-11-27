@@ -5,9 +5,7 @@ import fuzs.blockrunner.client.helper.FieldOfViewHelper;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.entity.player.ProfilePublicKey;
 import net.minecraft.world.level.Level;
-import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
@@ -19,7 +17,7 @@ abstract class AbstractClientPlayerMixin extends Player {
         super(level, blockPos, f, gameProfile);
     }
 
-    @ModifyVariable(method = "getFieldOfViewModifier", at = @At(value = "STORE", ordinal = 2), ordinal = 0)
+    @ModifyVariable(method = "getFieldOfViewModifier", at = @At(value = "STORE", ordinal = 2), ordinal = 1)
     public float getFieldOfViewModifier(float fovModifier) {
         // use a mixin here instead of using Forge's ComputeFovModifierEvent since this happens very early, and we'd have to reapply a lot of calculations otherwise
         if (FieldOfViewHelper.shouldRemoveBlockSpeedModifier(this)) {

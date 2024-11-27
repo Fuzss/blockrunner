@@ -18,7 +18,7 @@ public class BlockRunner implements ModConstructor {
 
     @Override
     public void onConstructMod() {
-        ModRegistry.touch();
+        ModRegistry.bootstrap();
     }
 
     public static ResourceLocation id(String path) {

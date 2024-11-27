@@ -23,9 +23,8 @@ public class ModDataMapProvider extends DataMapProvider {
     }
 
     @Override
-    protected void gather() {
-        Builder<BlockSpeed, Block> builder = this.builder(
-                NeoForgeDataMapToken.unwrap(ModRegistry.BLOCK_SPEED_DATA_MAP_TYPE));
+    protected void gather(HolderLookup.Provider registries) {
+        Builder<BlockSpeed, Block> builder = this.builder(NeoForgeDataMapToken.unwrap(ModRegistry.BLOCK_SPEED_DATA_MAP_TYPE));
         register(builder, ModRegistry.VERY_SLOW_BLOCKS_BLOCK_TAG, 0.45);
         register(builder, ModRegistry.SLOW_BLOCKS_BLOCK_TAG, 0.65);
         register(builder, ModRegistry.SLIGHTLY_SLOW_BLOCKS_BLOCK_TAG, 0.85);
