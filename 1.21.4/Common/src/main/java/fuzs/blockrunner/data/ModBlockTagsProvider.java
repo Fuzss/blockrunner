@@ -17,11 +17,11 @@ public class ModBlockTagsProvider extends AbstractTagProvider<Block> {
 
     @Override
     public void addTags(HolderLookup.Provider provider) {
-        this.add(ModRegistry.VERY_SLOW_BLOCKS_BLOCK_TAG);
-        this.add(ModRegistry.SLOW_BLOCKS_BLOCK_TAG);
-        this.add(ModRegistry.SLIGHTLY_SLOW_BLOCKS_BLOCK_TAG);
-        this.add(ModRegistry.SLIGHTLY_QUICK_BLOCKS_BLOCK_TAG).addTag(BlockTags.STONE_BRICKS);
-        this.add(ModRegistry.QUICK_BLOCKS_BLOCK_TAG).add(Blocks.DIRT_PATH);
-        this.add(ModRegistry.VERY_QUICK_BLOCKS_BLOCK_TAG);
+        this.tag(ModRegistry.VERY_SLOW_BLOCKS_BLOCK_TAG);
+        this.tag(ModRegistry.SLOW_BLOCKS_BLOCK_TAG);
+        this.tag(ModRegistry.SLIGHTLY_SLOW_BLOCKS_BLOCK_TAG);
+        this.tag(ModRegistry.SLIGHTLY_QUICK_BLOCKS_BLOCK_TAG).addTag(BlockTags.STONE_BRICKS);
+        this.tag(ModRegistry.QUICK_BLOCKS_BLOCK_TAG).add(Blocks.DIRT_PATH);
+        this.tag(ModRegistry.VERY_QUICK_BLOCKS_BLOCK_TAG);
     }
 }
