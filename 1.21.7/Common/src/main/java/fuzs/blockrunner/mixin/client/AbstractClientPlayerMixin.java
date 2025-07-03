@@ -3,7 +3,6 @@ package fuzs.blockrunner.mixin.client;
 import com.mojang.authlib.GameProfile;
 import fuzs.blockrunner.client.helper.FieldOfViewHelper;
 import net.minecraft.client.player.AbstractClientPlayer;
-import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import org.spongepowered.asm.mixin.Mixin;
@@ -13,8 +12,8 @@ import org.spongepowered.asm.mixin.injection.ModifyVariable;
 @Mixin(AbstractClientPlayer.class)
 abstract class AbstractClientPlayerMixin extends Player {
 
-    public AbstractClientPlayerMixin(Level level, BlockPos blockPos, float f, GameProfile gameProfile) {
-        super(level, blockPos, f, gameProfile);
+    public AbstractClientPlayerMixin(Level level, GameProfile gameProfile) {
+        super(level, gameProfile);
     }
 
     @ModifyVariable(method = "getFieldOfViewModifier", at = @At(value = "STORE", ordinal = 2), ordinal = 1)
