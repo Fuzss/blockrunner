@@ -48,8 +48,8 @@ abstract class LivingEntityMixin extends Entity {
     @Inject(method = "checkFallDamage", at = @At("HEAD"))
     protected void checkFallDamage(double y, boolean onGround, BlockState state, BlockPos pos, CallbackInfo callback) {
         // also run this client-side for players to counter server delay when calculating fov effects
-        if ((!this.level().isClientSide || LivingEntity.class.cast(this) instanceof Player) && onGround &&
-                this.fallDistance > 0.0F) {
+        if ((!this.level().isClientSide() || LivingEntity.class.cast(this) instanceof Player) && onGround
+                && this.fallDistance > 0.0F) {
             BlockSpeedAttributeHelper.removeBlockSpeed(LivingEntity.class.cast(this));
             BlockSpeedAttributeHelper.tryAddBlockSpeed(LivingEntity.class.cast(this));
         }
@@ -58,7 +58,7 @@ abstract class LivingEntityMixin extends Entity {
     @Inject(method = "baseTick", at = @At("TAIL"))
     public void baseTick(CallbackInfo callback) {
         // also run this client-side for players to counter server delay when calculating fov effects
-        if (this.level().isClientSide && LivingEntity.class.cast(this) instanceof Player) {
+        if (this.level().isClientSide() && LivingEntity.class.cast(this) instanceof Player) {
             BlockPos blockPos = this.blockPosition();
             if (!Objects.equal(this.lastPos, blockPos)) {
                 this.lastPos = blockPos;
@@ -71,8 +71,8 @@ abstract class LivingEntityMixin extends Entity {
     @Unique
     private void blockrunner$onChangedBlock() {
         // check if block not air or player is elytra flying
-        if (!this.getBlockStateOn().isAir() || this.isFallFlying() ||
-                LivingEntity.class.cast(this) instanceof Player player && player.getAbilities().flying) {
+        if (!this.getBlockStateOn().isAir() || this.isFallFlying()
+                || LivingEntity.class.cast(this) instanceof Player player && player.getAbilities().flying) {
             BlockSpeedAttributeHelper.removeBlockSpeed(LivingEntity.class.cast(this));
         }
         BlockSpeedAttributeHelper.tryAddBlockSpeed(LivingEntity.class.cast(this));
